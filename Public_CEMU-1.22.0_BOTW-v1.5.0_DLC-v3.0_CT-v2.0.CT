@@ -1,0 +1,1265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="34">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>4767</ID>
+      <Description>"Want even MORE BOTW Cheats?"</Description>
+      <Options moHideChildren="1"/>
+      <LastState Value="" RealAddress="00000000"/>
+      <GroupHeader>1</GroupHeader>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>2257</ID>
+          <Description>"Activate to open: Consider supporting my work on Patreon!"</Description>
+          <LastState/>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+//code from here to '[DISABLE]' will be used to enable the cheat
+{$lua}
+url = "https://www.patreon.com/postposterous?fan_landing=true"
+shellExecute(url)
+{$asm}
+
+
+[DISABLE]
+//code from here till the end of the code will be used to disable the cheat
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>4766</ID>
+          <Description>"See TABLE EXTRAS (lower right of cheat window) for additional Patreon features!"</Description>
+          <LastState Value="" RealAddress="00000000"/>
+          <GroupHeader>1</GroupHeader>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>2259</ID>
+      <Description>"Activate to see how to add big endian value types to Cheat Engine (REQUIRED for this table to function correctly!)"</Description>
+      <LastState/>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+//code from here to '[DISABLE]' will be used to enable the cheat
+{$lua}
+url = "https://youtu.be/qD5CZN2-3_k"
+shellExecute(url)
+{$asm}
+
+
+[DISABLE]
+//code from here till the end of the code will be used to disable the cheat
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>4746</ID>
+      <Description>"Master Code (MUST enabled BEFORE starting game in cemu)"</Description>
+      <LastState/>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[ENABLE]
+
+aobscanmodule(force_no_movbe,Cemu.exe,44 88 15 ?? ?? ?? ?? 41 C1 F9 1C) // should be unique
+alloc(newmem,$1000,force_no_movbe)
+
+label(code)
+label(return)
+
+newmem:
+
+code:
+  mov r10l, 0
+  mov [Cemu.hasMOVBESupport],r10l
+  jmp return
+
+force_no_movbe:
+  jmp code
+  nop 2
+return:
+registersymbol(force_no_movbe)
+
+[DISABLE]
+
+force_no_movbe:
+  db 44 88 15 DB AF E6 00
+
+unregistersymbol(force_no_movbe)
+dealloc(newmem)
+</AssemblerScript>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>2258</ID>
+      <Description>"Cheats"</Description>
+      <Options moHideChildren="1"/>
+      <LastState Value="" RealAddress="00000000"/>
+      <GroupHeader>1</GroupHeader>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>3198</ID>
+          <Description>"Player"</Description>
+          <Options moHideChildren="1"/>
+          <LastState Value="" RealAddress="00000000"/>
+          <GroupHeader>1</GroupHeader>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>18</ID>
+              <Description>"Unbreakable Weapons"</Description>
+              <LastState/>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>[ENABLE]
+
+aobscan(INJECT,45 89 74 15 00 89 EB) // should be unique
+alloc(newmem,$1000)
+
+label(code)
+label(return)
+
+newmem:
+cmp r10,80001
+jne code
+jmp return
+
+code:
+  mov [r13+rdx+00],r14d
+  mov ebx,ebp
+  mov [rsp+20],ebp
+  xor ebx,01
+  mov [rsp+10],ebx
+
+jmp return
+
+INJECT:
+  db 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90
+INJECT:
+  jmp newmem
+return:
+registersymbol(INJECT)
+
+[DISABLE]
+
+INJECT:
+  db 45 89 74 15 00 89 EB 89 6C 24 20 83 F3 01 89 5C 24 10
+
+unregistersymbol(INJECT)
+dealloc(newmem)
+</AssemblerScript>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>4747</ID>
+              <Description>"Invincible"</Description>
+              <LastState/>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>// switch parser to lua
+{$lua}
+if syntaxcheck then return end -- don't run past this point when adding to table/editing
+[ENABLE]
+resultList = AOBScan("0f 85 ?? 01 00 00 83 ac 24 b0 02 00 00 03 89 d3 83 e3 02 48 89 dd 85 ed")
+lngt = resultList.getCount()
+-- don't enable if failed to find aob
+if not resultList then error("Failed to find AOB") end
+bytes = {}
+
+for x=0, lngt-1 do
+   bytes[x] = readBytes(resultList[x],6, true) -- copy the original bytes as a table
+   writeBytes(resultList[x], 0x90, 0x90, 0x90, 0x90, 0x90, 0x90)
+end
+[DISABLE]
+for x=0, lngt-1, 1 do
+  writeBytes(resultList[x], bytes[x])
+end
+resultList.Destroy() -- no longer need the list so tell CE to free it
+-- bytes memory is handled by lua and it'll free that for us
+
+</AssemblerScript>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>4750</ID>
+              <Description>"Infinite Stamina"</Description>
+              <LastState/>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>[ENABLE]
+aobscan(inj_stamina,45 89 74 05 68 8B 54 24 08 45 8B 74 15 18)
+
+registersymbol(inj_stamina)
+
+inj_stamina:
+  db 90 90 90 90 90
+
+[DISABLE]
+inj_stamina:
+  db 45 89 74 05 68
+
+unregistersymbol(inj_stamina)
+</AssemblerScript>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>4748</ID>
+              <Description>"Speed Modifier"</Description>
+              <Options moHideChildren="1"/>
+              <LastState/>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>[ENABLE]
+aobscan(arraystart,3F 80 00 00 00 00 00 00 42 70 00 00 42 C8)
+// module/region would take info to narrow the scan
+label(_speedup)
+registersymbol(_speedup)
+
+//arraystart:
+arraystart:
+_speedup:
+
+[DISABLE]
+unregistersymbol(_speedup)
+</AssemblerScript>
+              <CheatEntries>
+                <CheatEntry>
+                  <ID>4749</ID>
+                  <Description>"Speed Modifier"</Description>
+                  <VariableType>Custom</VariableType>
+                  <CustomType>Float Big Endian</CustomType>
+                  <Address>_speedup</Address>
+                </CheatEntry>
+              </CheatEntries>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>1083</ID>
+              <Description>"Infinite Health"</Description>
+              <LastState/>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>[ENABLE]
+aobscan(inj_health,45 89 74 15 00 89 B4 24 80 00 00 00)
+
+registersymbol(inj_health)
+
+inj_health:
+  db 90 90 90 90 90
+
+[DISABLE]
+inj_health:
+  db 45 89 74 15 00
+
+unregistersymbol(inj_health)
+</AssemblerScript>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>0</ID>
+              <Description>"Infinite Arrows (Shoot arrow before activating)"</Description>
+              <LastState/>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>[ENABLE]
+aobscan(inj_arrows,45 89 74 35 10 44 89 54 24 04 C7 84 24 B8 02 00 00 70 67 EB 02)
+
+registersymbol(inj_arrows)
+
+inj_arrows:
+  db 90 90 90 90 90
+
+[DISABLE]
+inj_arrows:
+  db 45 89 74 35 10
+
+unregistersymbol(inj_arrows)
+</AssemblerScript>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>2236</ID>
+              <Description>"Mid Air Jump"</Description>
+              <LastState/>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>// switch parser to lua
+{$lua}
+if syntaxcheck then return end -- don't run past this point when adding to table/editing
+[ENABLE]
+resultList = AOBScan("45 89 b4 35 e0 01 00 00 41")
+lngt = resultList.getCount()
+-- don't enable if failed to find aob
+if not resultList then error("Failed to find AOB") end
+bytes = {}
+
+for x=0, lngt-1 do
+   bytes[x] = readBytes(resultList[x], 8, true) -- copy the 2 original bytes as a table
+   writeBytes(resultList[x], 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90)
+end
+[DISABLE]
+for x=0, lngt-1, 1 do
+  writeBytes(resultList[x], bytes[x])
+end
+resultList.Destroy() -- no longer need the list so tell CE to free it
+-- bytes memory is handled by lua and it'll free that for us
+</AssemblerScript>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>4758</ID>
+              <Description>"Stasis Enhancer (1=Shrink | 2=Grow | 0 = Dead) (Use stasis once before activating)"</Description>
+              <Options moHideChildren="1"/>
+              <LastState/>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>[Enable]
+
+aobscan(stasis_locs,41 89 44 15 04 41 8B B4) // should be unique
+alloc(newmem,$1000,stasis_locs)
+
+label(code)
+label(return)
+label(stasis_loc)
+label(arrrr13)
+label(object_loc)
+
+newmem:
+stasis_loc:
+  dq 0
+arrrr13:
+  dq 0
+object_loc:
+  dq 0
+code:
+push rbx
+  mov [arrrr13], r13
+  lea rbx,[r13+rdx+04]
+  mov [stasis_loc], rbx
+  mov ebx, [rbx]
+  bswap ebx
+  add rbx, [arrrr13]
+  mov [object_loc], rbx
+  pop rbx
+  mov [r13+rdx+04],eax
+  jmp return
+
+stasis_locs:
+  jmp code
+
+return:
+registersymbol(stasis_loc)
+registersymbol(stasis_locs)
+registersymbol(arrrr13)
+registersymbol(object_loc)
+
+[DISABLE]
+
+unregistersymbol(stasis_loc)
+unregistersymbol(stasis_locs)
+unregistersymbol(arrrr13)
+unregistersymbol(object_loc)
+
+stasis_locs:
+  db 41 89 44 15 04
+</AssemblerScript>
+              <CheatEntries>
+                <CheatEntry>
+                  <ID>4759</ID>
+                  <Description>"Enable to allow modifying weapon/shield size"</Description>
+                  <LastState/>
+                  <VariableType>Auto Assembler Script</VariableType>
+                  <AssemblerScript>[ENABLE]
+{$lua}
+if syntaxcheck then return end
+function aob_register(sym, pat)
+  instr = AOBScan(pat, "+X")
+  addy = instr[0]
+  instr.destroy()
+  addy = tonumber(addy, 16)
+  unregisterSymbol(sym)
+  registerSymbol(sym, addy)
+end
+
+aob_register("weap_width","45 89 B4 1D 74 02 00 00 0F 28 C8")
+aob_register("weap_width2","45 89 B4 1D 74 02 00 00 F2 44 0F 5A FA")
+aob_register("weap_height","45 89 B4 1D 78 02 00 00 0F")
+aob_register("weap_height2","41 89 94 1D 78 02 00 00")
+aob_register("weap_depth","45 89 B4 1D 7C 02 00 00 41")
+aob_register("weap_depth2","45 89 B4 1D 7C 02 00 00 66 0F 11 84 E4 48 01 00 00 66 0F 11 8C E4 ?? ?? 00 00 66 0F 11 94 E4 28 01 00 00 8B 54 24 7C E9 F0 00 00 00 83 AC 24 B0 02 00 00 03")
+aob_register("weap_depth3","45 89 B4 1D 7C 02 00 00 66 0F 11 84 E4 88 00 00 00 66 0F 11 8C E4 68 02 00 00 66 0F 11 94 E4 28 01 00 00 66 0F 11 9C E4 48 01 00 00 8B 54 24 7C")
+aob_register("weap_depth4","41 89 84 1D 7C 02 00 00")
+
+{$asm}
+
+weap_width:
+  db 90 90 90 90 90 90 90 90
+weap_width2:
+  db 90 90 90 90 90 90 90 90
+weap_height:
+  db 90 90 90 90 90 90 90 90
+weap_height2:
+  db 90 90 90 90 90 90 90 90
+weap_depth:
+  db 90 90 90 90 90 90 90 90
+weap_depth2:
+  db 90 90 90 90 90 90 90 90
+weap_depth3:
+  db 90 90 90 90 90 90 90 90
+weap_depth4:
+  db 90 90 90 90 90 90 90 90
+
+[DISABLE]
+
+weap_width:
+  db 45 89 B4 1D 74 02 00 00
+weap_width2:
+  db 45 89 B4 1D 74 02 00 00
+weap_height:
+  db 45 89 B4 1D 78 02 00 00
+weap_height2:
+  db 41 89 94 1D 78 02 00 00
+weap_depth:
+  db 45 89 B4 1D 7C 02 00 00
+weap_depth2:
+  db 45 89 B4 1D 7C 02 00 00
+weap_depth3:
+  db 45 89 B4 1D 7C 02 00 00
+weap_depth4:
+  db 41 89 84 1D 7C 02 00 00
+
+unregistersymbol(weap_width)
+unregistersymbol(weap_width2)
+unregistersymbol(weap_height)
+unregistersymbol(weap_height2)
+unregistersymbol(weap_depth)
+unregistersymbol(weap_depth2)
+unregistersymbol(weap_depth3)
+unregistersymbol(weap_depth4)
+</AssemblerScript>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>4760</ID>
+                  <Description>"Name"</Description>
+                  <ShowAsHex>1</ShowAsHex>
+                  <VariableType>String</VariableType>
+                  <Length>47</Length>
+                  <Unicode>0</Unicode>
+                  <CodePage>0</CodePage>
+                  <ZeroTerminate>1</ZeroTerminate>
+                  <Address>[object_loc]-F4</Address>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>4761</ID>
+                  <Description>"Scale width"</Description>
+                  <VariableType>Custom</VariableType>
+                  <CustomType>Float Big Endian</CustomType>
+                  <Address>[object_loc]+170</Address>
+                  <Hotkeys>
+                    <Hotkey>
+                      <Action>Decrease Value</Action>
+                      <Keys>
+                        <Key>49</Key>
+                      </Keys>
+                      <Value>0.25</Value>
+                      <ID>0</ID>
+                    </Hotkey>
+                    <Hotkey>
+                      <Action>Increase Value</Action>
+                      <Keys>
+                        <Key>50</Key>
+                      </Keys>
+                      <Value>0.25</Value>
+                      <ID>1</ID>
+                    </Hotkey>
+                  </Hotkeys>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>4762</ID>
+                  <Description>"Scale height"</Description>
+                  <VariableType>Custom</VariableType>
+                  <CustomType>Float Big Endian</CustomType>
+                  <Address>[object_loc]+174</Address>
+                  <Hotkeys>
+                    <Hotkey>
+                      <Action>Decrease Value</Action>
+                      <Keys>
+                        <Key>49</Key>
+                      </Keys>
+                      <Value>0.25</Value>
+                      <ID>0</ID>
+                    </Hotkey>
+                    <Hotkey>
+                      <Action>Increase Value</Action>
+                      <Keys>
+                        <Key>50</Key>
+                      </Keys>
+                      <Value>0.25</Value>
+                      <ID>1</ID>
+                    </Hotkey>
+                  </Hotkeys>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>4763</ID>
+                  <Description>"Scale depth"</Description>
+                  <VariableType>Custom</VariableType>
+                  <CustomType>Float Big Endian</CustomType>
+                  <Address>[object_loc]+178</Address>
+                  <Hotkeys>
+                    <Hotkey>
+                      <Action>Decrease Value</Action>
+                      <Keys>
+                        <Key>49</Key>
+                      </Keys>
+                      <Value>0.25</Value>
+                      <ID>0</ID>
+                    </Hotkey>
+                    <Hotkey>
+                      <Action>Increase Value</Action>
+                      <Keys>
+                        <Key>50</Key>
+                      </Keys>
+                      <Value>0.25</Value>
+                      <ID>1</ID>
+                    </Hotkey>
+                  </Hotkeys>
+                </CheatEntry>
+                <CheatEntry>
+                  <ID>4764</ID>
+                  <Description>"Health"</Description>
+                  <VariableType>Custom</VariableType>
+                  <CustomType>4 Byte Big Endian</CustomType>
+                  <Address>[object_loc]+43c</Address>
+                  <Hotkeys>
+                    <Hotkey>
+                      <Action>Set Value</Action>
+                      <Keys>
+                        <Key>48</Key>
+                      </Keys>
+                      <Value>0</Value>
+                      <ID>0</ID>
+                    </Hotkey>
+                  </Hotkeys>
+                </CheatEntry>
+              </CheatEntries>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>118</ID>
+          <Description>"Misc"</Description>
+          <Options moHideChildren="1"/>
+          <LastState Value="" RealAddress="00000000"/>
+          <GroupHeader>1</GroupHeader>
+          <CheatEntries>
+            <CheatEntry>
+              <ID>3136</ID>
+              <Description>"Always Sunny"</Description>
+              <LastState/>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>[ENABLE]
+
+aobscan(INJECT,41 88 BC 15 49 06 00 00) // should be unique
+alloc(newmem,$1000)
+
+label(code)
+label(return)
+
+newmem:
+
+code:
+  //mov [r13+rdx+00000649],dil
+  mov [r13+rdx+00000649],(int)0
+  db 41 0F 38 F0 BC 15 14 06 00 00  //movbe edi,[r13+rdx+00000614]
+
+  jmp return
+
+INJECT:
+  db 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90
+
+INJECT:
+  jmp newmem
+
+return:
+registersymbol(INJECT)
+
+[DISABLE]
+
+INJECT:
+  db 41 88 BC 15 49 06 00 00 41 0F 38 F0 BC 15 14 06 00 00
+
+unregistersymbol(INJECT)
+dealloc(newmem)
+</AssemblerScript>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>4755</ID>
+              <Description>"Find Camera Wide Angle"</Description>
+              <Options moHideChildren="1"/>
+              <LastState/>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>[Enable]
+
+aobscan(camera_locs,45 89 B4 05 C0 05 00 00 F3 0F 5A C0) // should be unique
+alloc(newmem,$1000,camera_locs)
+
+label(code)
+label(return)
+label(cam_loc)
+
+newmem:
+cam_loc:
+  dq 0
+code:
+  push rbx
+  lea rbx, [r13+rax+000005C0]
+  mov [cam_loc], rbx
+  pop rbx
+  mov [r13+rax+000005C0],r14d
+  jmp return
+
+camera_locs:
+  jmp code
+  nop 3
+return:
+registersymbol(cam_loc)
+registersymbol(camera_locs)
+
+[DISABLE]
+dealloc(newmem)
+unregistersymbol(cam_loc)
+unregistersymbol(camera_locs)
+camera_locs:
+  db 45 89 B4 05 C0 05 00 00
+</AssemblerScript>
+              <CheatEntries>
+                <CheatEntry>
+                  <ID>4756</ID>
+                  <Description>"Camera Wide Angle Control"</Description>
+                  <Options moHideChildren="1"/>
+                  <LastState/>
+                  <VariableType>Auto Assembler Script</VariableType>
+                  <AssemblerScript>[ENABLE]
+ aobscan(cam_wideangle,45 89 B4 05 E4 05 00 00 F3 0F)
+
+ label(_cam_wideangle)
+ registersymbol(_cam_wideangle)
+
+ cam_wideangle:
+ _cam_wideangle:
+ db 90 90 90 90 90 90 90 90
+
+ [DISABLE]
+ _cam_wideangle:
+ db 45 89 B4 2D F8 05 00 00
+
+ unregistersymbol(_cam_wideangle)
+</AssemblerScript>
+                  <CheatEntries>
+                    <CheatEntry>
+                      <ID>4757</ID>
+                      <Description>"Wide Angle (Bonus: Set to 0 for quick cam freeze)"</Description>
+                      <VariableType>Custom</VariableType>
+                      <CustomType>Float Big Endian</CustomType>
+                      <Address>[cam_loc]+24</Address>
+                    </CheatEntry>
+                  </CheatEntries>
+                </CheatEntry>
+              </CheatEntries>
+            </CheatEntry>
+            <CheatEntry>
+              <ID>22</ID>
+              <Description>"Stop Time"</Description>
+              <LastState/>
+              <VariableType>Auto Assembler Script</VariableType>
+              <AssemblerScript>[ENABLE]
+aobscan(inj_time,45 89 74 15 08 41 8b 5c 05 1c 0f cb 41 8b 54 05 14)
+
+registersymbol(inj_time)
+
+inj_time:
+  db 90 90 90 90 90
+
+[DISABLE]
+inj_time:
+  db 45 89 74 15 08
+
+unregistersymbol(inj_time)
+</AssemblerScript>
+            </CheatEntry>
+          </CheatEntries>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>3642</ID>
+      <Description>"Cheat Demos (How-To)"</Description>
+      <Options moHideChildren="1"/>
+      <LastState Value="" RealAddress="00000000"/>
+      <GroupHeader>1</GroupHeader>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>4765</ID>
+          <Description>"Activate to see how to add big endian value types to Cheat Engine (REQUIRED for this table to function correctly!)"</Description>
+          <LastState/>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+//code from here to '[DISABLE]' will be used to enable the cheat
+{$lua}
+url = "https://youtu.be/qD5CZN2-3_k"
+shellExecute(url)
+{$asm}
+
+
+[DISABLE]
+//code from here till the end of the code will be used to disable the cheat
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>3762</ID>
+          <Description>"Activate to see a demo of the general cheats!"</Description>
+          <LastState/>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+//code from here to '[DISABLE]' will be used to enable the cheat
+{$lua}
+url = "https://youtu.be/p7hgpt-XaK4"
+shellExecute(url)
+{$asm}
+
+
+[DISABLE]
+//code from here till the end of the code will be used to disable the cheat
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>3643</ID>
+          <Description>"Activate to see a demo of the new WEATHER CONTROL Patreon cheat!"</Description>
+          <LastState/>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+//code from here to '[DISABLE]' will be used to enable the cheat
+{$lua}
+url = "https://www.youtube.com/watch?v=sxrp_UW9eFc"
+shellExecute(url)
+{$asm}
+
+
+[DISABLE]
+//code from here till the end of the code will be used to disable the cheat
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>3644</ID>
+          <Description>"Activate to see a demo of the new STASIS cheat!"</Description>
+          <LastState/>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+//code from here to '[DISABLE]' will be used to enable the cheat
+{$lua}
+url = "https://www.youtube.com/watch?v=ovTd683e9u0"
+shellExecute(url)
+{$asm}
+
+
+[DISABLE]
+//code from here till the end of the code will be used to disable the cheat
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>3645</ID>
+          <Description>"Activate to see a demo of the Atmosphere mod Patreon cheat!"</Description>
+          <LastState/>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[ENABLE]
+//code from here to '[DISABLE]' will be used to enable the cheat
+{$lua}
+url = "https://www.youtube.com/watch?v=2ZORXPNY6SY"
+shellExecute(url)
+{$asm}
+
+
+[DISABLE]
+//code from here till the end of the code will be used to disable the cheat
+</AssemblerScript>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>4768</ID>
+      <Description>"Having Trouble? Things to check..."</Description>
+      <Options moHideChildren="1"/>
+      <LastState Value="" RealAddress="00000000"/>
+      <GroupHeader>1</GroupHeader>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>4769</ID>
+          <Description>"-You have big endian value types added to Cheat Engine. Required for CEMU cheats to work."</Description>
+          <LastState Value="" RealAddress="00000000"/>
+          <GroupHeader>1</GroupHeader>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>4770</ID>
+          <Description>"-You have the same versions of updates and DLC installed the cheat table was built with"</Description>
+          <LastState Value="" RealAddress="00000000"/>
+          <GroupHeader>1</GroupHeader>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>4771</ID>
+          <Description>"-You're not running CEMU through another app like Wii-USB Helper (cemu must be run directly)"</Description>
+          <LastState Value="" RealAddress="00000000"/>
+          <GroupHeader>1</GroupHeader>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>4772</ID>
+          <Description>"-You don't have any other mods applied"</Description>
+          <LastState Value="" RealAddress="00000000"/>
+          <GroupHeader>1</GroupHeader>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>4773</ID>
+          <Description>"-You're IN GAME when attempting to enable (like, able to move around) (except for master code)"</Description>
+          <LastState Value="" RealAddress="00000000"/>
+          <GroupHeader>1</GroupHeader>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols>
+    <SymbolEntry>
+      <Name>aob_Arrows</Name>
+      <Address>110E49C24</Address>
+    </SymbolEntry>
+    <SymbolEntry>
+      <Name>_WeaponHealth</Name>
+      <Address>3240C5D8</Address>
+    </SymbolEntry>
+    <SymbolEntry>
+      <Name>_nodamage</Name>
+      <Address>34FF6485</Address>
+    </SymbolEntry>
+    <SymbolEntry>
+      <Name>_Stamina</Name>
+      <Address>2D2FC552</Address>
+    </SymbolEntry>
+  </UserdefinedSymbols>
+  <Structures StructVersion="2">
+    <Structure Name="unnamed structure" AutoFill="0" AutoCreate="1" DefaultHex="0" AutoDestroy="0" DoNotSaveLocal="0" RLECompression="1" AutoCreateStructsize="4096">
+      <Elements>
+        <Element Offset="0" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000000" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="28" Vartype="4 Bytes" Bytesize="4" OffsetHex="0000001C" DisplayMethod="Hexadecimal"/>
+        <Element Offset="32" Vartype="4 Bytes" Bytesize="4" RLECount="8" OffsetHex="00000020" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="64" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000040" DisplayMethod="Hexadecimal"/>
+        <Element Offset="68" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000044" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="112" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000070" DisplayMethod="Hexadecimal"/>
+        <Element Offset="116" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000074" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="160" Vartype="4 Bytes" Bytesize="4" OffsetHex="000000A0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="164" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="000000A4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="208" Vartype="4 Bytes" Bytesize="4" OffsetHex="000000D0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="212" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="000000D4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="252" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="000000FC" DisplayMethod="Hexadecimal"/>
+        <Element Offset="260" Vartype="Pointer" Bytesize="8" OffsetHex="00000104" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="268" Vartype="4 Bytes" Bytesize="4" RLECount="5" OffsetHex="0000010C" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="288" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000120" DisplayMethod="Hexadecimal"/>
+        <Element Offset="292" Vartype="Pointer" Bytesize="8" OffsetHex="00000124" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="300" Vartype="4 Bytes" Bytesize="4" RLECount="9" OffsetHex="0000012C" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="336" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000150" DisplayMethod="Hexadecimal"/>
+        <Element Offset="340" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000154" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="384" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000180" DisplayMethod="Hexadecimal"/>
+        <Element Offset="388" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000184" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="432" Vartype="4 Bytes" Bytesize="4" OffsetHex="000001B0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="436" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="000001B4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="476" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="000001DC" DisplayMethod="Hexadecimal"/>
+        <Element Offset="484" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="000001E4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="512" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000200" DisplayMethod="Hexadecimal"/>
+        <Element Offset="516" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000204" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="560" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000230" DisplayMethod="Hexadecimal"/>
+        <Element Offset="564" Vartype="Pointer" Bytesize="8" OffsetHex="00000234" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="572" Vartype="4 Bytes" Bytesize="4" RLECount="9" OffsetHex="0000023C" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="608" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000260" DisplayMethod="Hexadecimal"/>
+        <Element Offset="612" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000264" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="656" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000290" DisplayMethod="Hexadecimal"/>
+        <Element Offset="660" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000294" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="700" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="000002BC" DisplayMethod="Hexadecimal"/>
+        <Element Offset="708" Vartype="4 Bytes" Bytesize="4" RLECount="19" OffsetHex="000002C4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="784" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000310" DisplayMethod="Hexadecimal"/>
+        <Element Offset="788" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000314" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="832" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000340" DisplayMethod="Hexadecimal"/>
+        <Element Offset="836" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000344" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="880" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000370" DisplayMethod="Hexadecimal"/>
+        <Element Offset="884" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000374" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="924" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="0000039C" DisplayMethod="Hexadecimal"/>
+        <Element Offset="932" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="000003A4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="960" Vartype="4 Bytes" Bytesize="4" OffsetHex="000003C0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="964" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="000003C4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1008" Vartype="4 Bytes" Bytesize="4" OffsetHex="000003F0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1012" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="000003F4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1056" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000420" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1060" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000424" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1104" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000450" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1108" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000454" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1148" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="0000047C" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1156" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000484" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1184" Vartype="4 Bytes" Bytesize="4" OffsetHex="000004A0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1188" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="000004A4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1232" Vartype="4 Bytes" Bytesize="4" OffsetHex="000004D0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1236" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="000004D4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1280" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000500" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1284" Vartype="4 Bytes" Bytesize="4" RLECount="22" OffsetHex="00000504" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1372" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="0000055C" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1380" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000564" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1408" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000580" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1412" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000584" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1456" Vartype="4 Bytes" Bytesize="4" OffsetHex="000005B0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1460" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="000005B4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1504" Vartype="4 Bytes" Bytesize="4" OffsetHex="000005E0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1508" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="000005E4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1552" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000610" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1556" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000614" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1596" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="0000063C" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1604" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000644" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1632" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000660" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1636" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000664" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1680" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000690" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1684" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000694" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1728" Vartype="4 Bytes" Bytesize="4" OffsetHex="000006C0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1732" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="000006C4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1776" Vartype="4 Bytes" Bytesize="4" OffsetHex="000006F0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1780" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="000006F4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1820" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="0000071C" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1828" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000724" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1856" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000740" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1860" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000744" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1904" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000770" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1908" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000774" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1952" Vartype="4 Bytes" Bytesize="4" OffsetHex="000007A0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1956" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="000007A4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2000" Vartype="4 Bytes" Bytesize="4" OffsetHex="000007D0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2004" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="000007D4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2044" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="000007FC" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2052" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000804" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2080" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000820" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2084" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000824" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2128" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000850" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2132" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000854" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2176" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000880" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2180" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000884" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2224" Vartype="4 Bytes" Bytesize="4" OffsetHex="000008B0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2228" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="000008B4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2268" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="000008DC" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2276" Vartype="4 Bytes" Bytesize="4" RLECount="19" OffsetHex="000008E4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2352" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000930" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2356" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000934" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2400" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000960" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2404" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000964" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2448" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000990" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2452" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000994" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2492" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="000009BC" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2500" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="000009C4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2528" Vartype="4 Bytes" Bytesize="4" OffsetHex="000009E0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2532" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="000009E4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2576" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000A10" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2580" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000A14" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2624" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000A40" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2628" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000A44" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2672" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000A70" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2676" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000A74" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2716" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="00000A9C" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2724" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000AA4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2752" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000AC0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2756" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000AC4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2800" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000AF0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2804" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000AF4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2848" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000B20" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2852" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000B24" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2896" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000B50" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2900" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000B54" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2940" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="00000B7C" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2948" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000B84" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2976" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000BA0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2980" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000BA4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3024" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000BD0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3028" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000BD4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3072" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000C00" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3076" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000C04" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3120" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000C30" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3124" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000C34" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3164" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="00000C5C" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3172" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000C64" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3200" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000C80" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3204" Vartype="4 Bytes" Bytesize="4" RLECount="23" OffsetHex="00000C84" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3296" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000CE0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3300" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000CE4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3344" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000D10" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3348" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000D14" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3388" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="00000D3C" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3396" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000D44" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3424" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000D60" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3428" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000D64" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3472" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000D90" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3476" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000D94" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3520" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000DC0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3524" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000DC4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3568" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000DF0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3572" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000DF4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3612" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="00000E1C" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3620" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000E24" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3648" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000E40" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3652" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000E44" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3696" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000E70" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3700" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000E74" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3744" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000EA0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3748" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000EA4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3792" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000ED0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3796" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000ED4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3836" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="00000EFC" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3844" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000F04" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3872" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000F20" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3876" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000F24" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3920" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000F50" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3924" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000F54" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3968" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000F80" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3972" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000F84" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="4016" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000FB0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="4020" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000FB4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="4060" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="00000FDC" DisplayMethod="Hexadecimal"/>
+        <Element Offset="4068" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000FE4" DisplayMethod="Unsigned Integer"/>
+      </Elements>
+    </Structure>
+    <Structure Name="unnamed structure 2" AutoFill="0" AutoCreate="1" DefaultHex="0" AutoDestroy="0" DoNotSaveLocal="0" RLECompression="1" AutoCreateStructsize="4096">
+      <Elements>
+        <Element Offset="0" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000000" DisplayMethod="Hexadecimal"/>
+        <Element Offset="4" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000004" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="48" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000030" DisplayMethod="Hexadecimal"/>
+        <Element Offset="52" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000034" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="96" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000060" DisplayMethod="Hexadecimal"/>
+        <Element Offset="100" Vartype="4 Bytes" Bytesize="4" RLECount="22" OffsetHex="00000064" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="188" Vartype="4 Bytes" Bytesize="4" OffsetHex="000000BC" DisplayMethod="Hexadecimal"/>
+        <Element Offset="192" Vartype="4 Bytes" Bytesize="4" RLECount="8" OffsetHex="000000C0" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="224" Vartype="4 Bytes" Bytesize="4" OffsetHex="000000E0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="228" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="000000E4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="272" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000110" DisplayMethod="Hexadecimal"/>
+        <Element Offset="276" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000114" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="320" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000140" DisplayMethod="Hexadecimal"/>
+        <Element Offset="324" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000144" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="368" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000170" DisplayMethod="Hexadecimal"/>
+        <Element Offset="372" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000174" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="412" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="0000019C" DisplayMethod="Hexadecimal"/>
+        <Element Offset="420" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="000001A4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="448" Vartype="4 Bytes" Bytesize="4" OffsetHex="000001C0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="452" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="000001C4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="496" Vartype="4 Bytes" Bytesize="4" OffsetHex="000001F0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="500" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="000001F4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="544" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000220" DisplayMethod="Hexadecimal"/>
+        <Element Offset="548" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000224" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="592" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000250" DisplayMethod="Hexadecimal"/>
+        <Element Offset="596" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000254" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="636" Vartype="4 Bytes" Bytesize="4" OffsetHex="0000027C" DisplayMethod="Hexadecimal"/>
+        <Element Offset="640" Vartype="4 Bytes" Bytesize="4" RLECount="20" OffsetHex="00000280" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="720" Vartype="4 Bytes" Bytesize="4" OffsetHex="000002D0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="724" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="000002D4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="768" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000300" DisplayMethod="Hexadecimal"/>
+        <Element Offset="772" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000304" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="816" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000330" DisplayMethod="Hexadecimal"/>
+        <Element Offset="820" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000334" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="860" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="0000035C" DisplayMethod="Hexadecimal"/>
+        <Element Offset="868" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000364" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="896" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000380" DisplayMethod="Hexadecimal"/>
+        <Element Offset="900" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000384" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="944" Vartype="4 Bytes" Bytesize="4" OffsetHex="000003B0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="948" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="000003B4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="992" Vartype="4 Bytes" Bytesize="4" OffsetHex="000003E0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="996" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="000003E4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1040" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000410" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1044" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000414" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1084" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="0000043C" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1092" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000444" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1120" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000460" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1124" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000464" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1168" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000490" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1172" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000494" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1216" Vartype="4 Bytes" Bytesize="4" OffsetHex="000004C0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1220" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="000004C4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1264" Vartype="4 Bytes" Bytesize="4" OffsetHex="000004F0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1268" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="000004F4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1308" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="0000051C" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1316" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000524" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1344" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000540" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1348" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000544" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1392" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000570" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1396" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000574" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1440" Vartype="4 Bytes" Bytesize="4" OffsetHex="000005A0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1444" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="000005A4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1488" Vartype="4 Bytes" Bytesize="4" OffsetHex="000005D0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1492" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="000005D4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1532" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="000005FC" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1540" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000604" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1568" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000620" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1572" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000624" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1616" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000650" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1620" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000654" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1664" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000680" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1668" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000684" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1712" Vartype="4 Bytes" Bytesize="4" OffsetHex="000006B0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1716" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="000006B4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1756" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="000006DC" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1764" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="000006E4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1792" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000700" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1796" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000704" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1840" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000730" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1844" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000734" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1888" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000760" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1892" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000764" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1936" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000790" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1940" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000794" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1980" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="000007BC" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1988" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="000007C4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2016" Vartype="4 Bytes" Bytesize="4" OffsetHex="000007E0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2020" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="000007E4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2064" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000810" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2068" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000814" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2112" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000840" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2116" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000844" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2160" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000870" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2164" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000874" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2204" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="0000089C" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2212" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="000008A4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2240" Vartype="4 Bytes" Bytesize="4" OffsetHex="000008C0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2244" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="000008C4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2288" Vartype="4 Bytes" Bytesize="4" OffsetHex="000008F0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2292" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="000008F4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2336" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000920" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2340" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000924" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2384" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000950" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2388" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000954" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2428" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="0000097C" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2436" Vartype="4 Bytes" Bytesize="4" RLECount="19" OffsetHex="00000984" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2512" Vartype="4 Bytes" Bytesize="4" OffsetHex="000009D0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2516" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="000009D4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2560" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000A00" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2564" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000A04" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2608" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000A30" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2612" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000A34" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2652" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="00000A5C" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2660" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000A64" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2688" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000A80" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2692" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000A84" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2736" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000AB0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2740" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000AB4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2784" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000AE0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2788" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000AE4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2832" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000B10" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2836" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000B14" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2876" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="00000B3C" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2884" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000B44" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2912" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000B60" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2916" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000B64" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2960" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000B90" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2964" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000B94" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3008" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000BC0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3012" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000BC4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3056" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000BF0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3060" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000BF4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3100" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="00000C1C" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3108" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000C24" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3136" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000C40" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3140" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000C44" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3184" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000C70" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3188" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000C74" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3232" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000CA0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3236" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000CA4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3280" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000CD0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3284" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000CD4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3324" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="00000CFC" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3332" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000D04" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3360" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000D20" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3364" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000D24" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3408" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000D50" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3412" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000D54" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3456" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000D80" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3460" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000D84" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3504" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000DB0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3508" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000DB4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3548" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="00000DDC" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3556" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000DE4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3584" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000E00" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3588" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000E04" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3632" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000E30" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3636" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000E34" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3680" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000E60" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3684" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000E64" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3728" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000E90" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3732" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000E94" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3772" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="00000EBC" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3780" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000EC4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3808" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000EE0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3812" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000EE4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3856" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000F10" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3860" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000F14" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3904" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000F40" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3908" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000F44" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3952" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000F70" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3956" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000F74" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3996" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="00000F9C" DisplayMethod="Hexadecimal"/>
+        <Element Offset="4004" Vartype="4 Bytes" Bytesize="4" RLECount="7" OffsetHex="00000FA4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="4032" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000FC0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="4036" Vartype="4 Bytes" Bytesize="4" RLECount="11" OffsetHex="00000FC4" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="4080" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000FF0" DisplayMethod="Hexadecimal"/>
+        <Element Offset="4084" Vartype="4 Bytes" Bytesize="4" RLECount="3" OffsetHex="00000FF4" DisplayMethod="Unsigned Integer"/>
+      </Elements>
+    </Structure>
+    <Structure Name="unnamed structure 3" AutoFill="0" AutoCreate="1" DefaultHex="0" AutoDestroy="0" DoNotSaveLocal="0" RLECompression="1" AutoCreateStructsize="4096">
+      <Elements>
+        <Element Offset="0" Vartype="Byte" Bytesize="1" OffsetHex="00000000" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1" Vartype="4 Bytes" Bytesize="4" RLECount="20" OffsetHex="00000001" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="81" Vartype="Pointer" Bytesize="8" RLECount="4" OffsetHex="00000051" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="113" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="00000071" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="121" Vartype="Pointer" Bytesize="8" OffsetHex="00000079" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="129" Vartype="4 Bytes" Bytesize="4" RLECount="152" OffsetHex="00000081" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="737" Vartype="Pointer" Bytesize="8" OffsetHex="000002E1" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="745" Vartype="Byte" Bytesize="1" RLECount="4" OffsetHex="000002E9" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="749" Vartype="4 Bytes" Bytesize="4" RLECount="81" OffsetHex="000002ED" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1073" Vartype="Byte" Bytesize="1" OffsetHex="00000431" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1074" Vartype="String" Bytesize="5" OffsetHex="00000432" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1079" Vartype="Byte" Bytesize="1" RLECount="2" OffsetHex="00000437" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1081" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="00000439" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1089" Vartype="Pointer" Bytesize="8" RLECount="2" OffsetHex="00000441" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1105" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="00000451" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1113" Vartype="Pointer" Bytesize="8" RLECount="2" OffsetHex="00000459" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1129" Vartype="4 Bytes" Bytesize="4" RLECount="10" OffsetHex="00000469" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1169" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000491" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1173" Vartype="4 Bytes" Bytesize="4" RLECount="5" OffsetHex="00000495" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1193" Vartype="Pointer" Bytesize="8" RLECount="3" OffsetHex="000004A9" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1217" Vartype="4 Bytes" Bytesize="4" RLECount="8" OffsetHex="000004C1" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1249" Vartype="4 Bytes" Bytesize="4" RLECount="3" OffsetHex="000004E1" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1261" Vartype="4 Bytes" Bytesize="4" RLECount="9" OffsetHex="000004ED" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1297" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000511" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1301" Vartype="4 Bytes" Bytesize="4" RLECount="2" OffsetHex="00000515" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1309" Vartype="4 Bytes" Bytesize="4" OffsetHex="0000051D" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1313" Vartype="4 Bytes" Bytesize="4" RLECount="5" OffsetHex="00000521" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1333" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000535" DisplayMethod="Hexadecimal"/>
+        <Element Offset="1337" Vartype="4 Bytes" Bytesize="4" RLECount="14" OffsetHex="00000539" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1393" Vartype="Pointer" Bytesize="8" RLECount="2" OffsetHex="00000571" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="1409" Vartype="4 Bytes" Bytesize="4" RLECount="305" OffsetHex="00000581" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="2629" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000A45" DisplayMethod="Hexadecimal"/>
+        <Element Offset="2633" Vartype="4 Bytes" Bytesize="4" RLECount="330" OffsetHex="00000A49" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3953" Vartype="Pointer" Bytesize="8" OffsetHex="00000F71" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3961" Vartype="4 Bytes" Bytesize="4" RLECount="5" OffsetHex="00000F79" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="3981" Vartype="4 Bytes" Bytesize="4" OffsetHex="00000F8D" DisplayMethod="Hexadecimal"/>
+        <Element Offset="3985" Vartype="4 Bytes" Bytesize="4" RLECount="27" OffsetHex="00000F91" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="4093" Vartype="2 Bytes" Bytesize="2" OffsetHex="00000FFD" DisplayMethod="Unsigned Integer"/>
+        <Element Offset="4095" Vartype="Byte" Bytesize="1" OffsetHex="00000FFF" DisplayMethod="Unsigned Integer"/>
+      </Elements>
+    </Structure>
+  </Structures>
+  <Comments>Patreon supporters get access to ALL of my cheats for ALL of my cheat tables!
+Additional Breath of the Wild Patreon Cheat Table Features:
+-----------------------------------------------
+-Complete Inventory Editor (Swap any item/weapon and pawn anything, anytime)
+-Camera control (Modify camera x,y,z,pitch,yaw independently)
+-Modify the weather
+-Modify the atmosphere/climate
+-Modify the sky
+-Instant lightning strike
+-Make Link's face look freaky
+-Infinite Divine Beast Powers
+-No Rechard for Remote Bomb or Stasis
+-No Cool Down for Special Weapons
+-Tiny Link
+-Giant Link
+-Custom Link size modifier
+-Time of Day Modifier
+-Autokill Enemies
+-Shooting arrows adds arrows
+-Swap one enemy for another
+-Player coordinates (fly around/go through walls)
+-Rupee Modifier
+-Max Durability for all weapons
+-Max all items
+-Max arrows
++ MORE
+</Comments>
+  <Signature>
+    <SignedHash HashSize="132">0PQz.E20409-Kw?2y*gbL?tq.dJl8fCm?CBy.Lnw3idFpfZ;CQ=0[S[stE0Rv*UV}%igxczZ+A6elsTIz-j;61oaZ4UDq89=8=@wK%Q8WNDg_dKzq@KH_F^(R$BAi1%f8)OjEmEhYkr$%dOlP*#w)M#2EGC:=JJ1-at@2</SignedHash>
+    <PublicKey Size="39931">00000i}s?vMMG0HLI3}(0r;iPId1-d;(r%,7ij,Rh0ik:A}b{zMa@O;AR/Rin0EVz5/WJVxhW88T}m,xPzX%4zxR69T)Ul$ojx37Ek6MNquWZYQ2l.BL8+5z0UKyHo12g2^7J[/=_O6Fk(G[;jo+y#4(o=Tb8-Y_hJo@3s]@Ztmk}luFrMnl8?Y.b2HKhc0EtjeM-2*Z3IG5A4M_8uQUCw{KmY($B=txp001-IF!ule010qNS#tmY4#WTe4#WYKD-Ig}075!xR9JLaO-wptZ+4ANWN%[,E[iKl0000006af/aA9L;Wpp57WoKz[JtFVBzak*MWIZBRHBB(0a6?HiX-Il/Wm9?iRAYK.V;x6ZKRyaPcsh7)aBXFDVIX+IY.JQpcs)LvWN%[,I(O11ZDn+{FCrj#I)ThxbZb2#L1b?YWgu8hP#^BZa%CVjE.cP:F+7)IH#sgbH90skG%O%8FfleSFgY)VG%YYOIxsmpFfkw=ARr)hARr/;3LqdLJaS{aI#NVNAb4$TZgV/vWM){gXmoUNIxjDGcXuv#GcIp)XD:}1IXN#dGA{YREplXLEpvHpbYXZcZgV3dJ[.ZpARr)hJaS{aIz)l2V^(P5bZKvHAaZ18I$;gOb#y%/A[@cNARr)hARr)hARu@cY.JQpcx]Y!B4}7Ua5@t9ZgVbSWN%[,E?N,PFL,@aFEK7KFCq#cARr)hARr)hARr*kZES9HI%H!#B4}7Ua5@t9aCLHQE@l(YFJxmcWo%[[Wo}qHFEK7LFCq#cARr)hARr)hARr*kZES9HI)ThxO-)%[XmoUNIxjD7b1q=IZ)=OGV^dIQcwulaF*lDKZEY[i3LqdLARr)hARr)hAb4$TZgV/wbVYV[JtAmybZ_N@FK%-#VPtP(WiDfHZ7,CXa4#[}FfVgdd2nSfQe_@+b#h}6MRsLwbR!{PARr)hARr)hARr)hcx]NMb2?W$Qe_d6B4}7Ua5@t9ZgVbSWN%[,E?N,PFL,@aFEK7KFLP9RaAhx2Wpi)Ja$^vuWo9EH3LqdLARr)hARr)hAb4$TZgV/tXm50Hb7+gHJtAmybZ_N@FK%-#VPtP(WiDfHZ7+/WZ++@SXm4.YF*lDKA[@cNARr)hARr)hARu@cY.JQpbZKU0JtAmybZ_N@FK%-#VPtP(WiDfHZ7,0bW?axjE-*]53LqdLARr)hARr)hAb4$TZgV/icxh%mB4}7Ua5@t9ZgVbSWN%[,E?N,PFJ+XXW-l::FfSrL3LqdLARr)hARs):ZE!k6a%Ew3Z+o+]Z*]q6WN%[,AW(#.bZ;KLZ+U,)Lm*CRF+hJ6S7}l!Z,CMkJTG]^a5[VBWnpx0a#U_]Y)5GgARr)hARr)hJa{zzIzw]0VRU6gVRU6aGB7eQEig1KF+Q@$F+-9iIyE@hFgH3dFg!1KZE!k6a%Ew3Wkg_gWj,cZARr)hARr)hJa{zzI!$GCVPs*,VMJkcWj-:6GB7PLG%YeQR53O;Gc!6fFfA{QIxsLiFL-TmI!$GCVPs*,VMJkcWj,cZARr)hARr)hJa{zzI!$k6X:ZsuVRU6aGB7eQEig1KGBH#!HaasiIx^dWFgH3dFg!1KZE!kGZ*9m@c_;7!Wj,cZARr)hARr)hJY-]!W@ZzBVRSxeZDD6,FK{+WJTGKpI%aQjZDDji3LqdLARr)hARs):ZE#IZI!SJGbYX5_Wl2Oncx]YlX:!9SH*Jt6VK8PmEo3leVJ$K/G(L/@WHx3kF/}$[H8x@7WH(M{JTG]^a7_4+Np5p:VQyn)Nkl#hARr)hARr)hAUt=(a7_4+L}mntZDnqBNkl$jWN%[,I%IESX:FNZXm50Hb7+gHIyYfsIW%N9H7z)aGB[/UF:b(bVKQSjEjeO1VK6v0GBGt_IXo_TZE#IZIz)=^b!{yCbV*:$3LqdLARr)hARs):ZE#IZI!_)GXK8L;Y)#Hkb!{yCbV*:$cx]YlWNBnNHaKKsIbkz0Ej460HZ5i]G(C)?HZe9WFlJ#fGcsf^H)?a_JTG]^a7_4+PjYEzX;MU]L}mntZDnqBNkl#hARr)hARr)hAUt=(a7_4+NNIC*Z+qA*3LqdLARr)hARr)hAUtwpW.#:4aXtzlARr)hARr)hARr)hARs)*WM);SX(]cBW.$=Ta(u*:d2nStB2r}?Z+[8GWg/QbARr)hARr)hARr)hARr)hARs)+bVYV[I$;jUX;V;mV^(C-bY*}bFLQK7c62(nV^}b6ZaxYiARr)hARr)hARr)hARr)hAUtz*MRs(LX;N0LVQyn)Nkl$*ZE!AWX:FM!IAmivVKXu/HDoz9EoLz@G%aE[F+YqQW==ZiGGsD0VKFm2FLQK7c62(vZgX@DZewLhL[P^2ARr)hARr)hARr)hARr)hAUtz*MRs(LcW7m9J}A+eFfA{NEipAzFflqaI65@sEigAaFfcqXb96.@bUJrvWo_wSARr)hARr)hARr)hARr)hARs)+bVYV[I(+Jkba!ELWkF_UZgf6DWN%[,AW(#.bZ;KLZ+U,)Lm*CRF+hJ6S7}l!Z,CMkJTG%{MRs(Lb8lvJcVTj6L1$%dbUq3oARr)hARr)hARr)hARs)1a%5(YY-v6UARr)hARr)hARr)hARr)-a%5(YY-u2JWM);WVRCb2RC#b@Jt9)Nb8mHWV]U.f3LqdLARr)hARr)hARr)hARr)-b96.@bUI.UbZKvHK67DqWn=?rb96.@bUI.UbZKvHJ[.ZpARr)hARr)hARr)hARr)hJacqKc62(vZgX@DZewLhL[T/Ja4u/SWI8Z2I5jgcH*Jh1Ff:$VV]elqEjVT{H7z){GcsdhVKreiIXOHpb96.@bUJBnb97.DV]WK1J[.ZpARr)hARr)hARr)hARr)hJacqKc62(-Xk}6bGB7eQEig1KF+Q@$F+-CcIx.maFgH3dFg!1FbVYV[I)KMgZaxYiARr)hARr)hARr)hARr)hAUtz*MRs(Lb8lvJcVTj6L1$%dbUs03Z)=O2P-t(-Z+ypGa3DiNATls9Hy_iiX;Me1cXKH]FLQK7c62()Z*S9NVRB[bXJu{5J[.ZpARr)hARr)hARr)hARr)hJacqKc62(pXkl):Wn={tJTG%{MRs(LV]yP,XJuqQ3LqdLARr)hARr)hARr)hJTG!(W.$$XJ[.ZpARr)hARr)hARr)hAUtwpW.$$XAaZ18I(fifb7fR^aAiFrQe_@+b#h}6B0dTrARr)hARr)hARr)hARr)hAUtz*MRs(LVPkY?Z+D$gZ+F#Fa(%;6JTG%{MRs(LVPkY?Z+D#cARr)hARr)hARr)hARr)hARs)+bVYV[I(fifVQpn{WpZ.qW@!,BAYpKDY-wX+bZKvHFLrKZE?5PEVr4FHXm50Hb7+gHAarjaX;DO:WiN1UXFM-,bVYV[I(fifVQpn{WpZ.q3LqdLARr)hARr)hARr)hJTG!(W.$$XJ[.ZpARr)hARr)hARr)hAUtwpW.$$XAaZ18I(fifb7fR^aAiFrQe_@+b#h}6B0dTrARr)hARr)hARr)hARr)hAUtz*MRs(LVPkY?Z+D$hWpZhDWn=?rb96.@bUI.UbZKvHJ[.ZpARr)hARr)hARr)hARr)hJacqKc62($VRB)?Wprh7b3S8lZgypIbY*}9W@!,BAYpKDY-wX+bZKvHFLrKZE?5PEVr4FHXm50Hb7+gHAarjaX;DO:WiN1UXFM-,bVYV[I(fifVQpn{WpZ.q3LqdLARr)hARr)hARr)hJTG!(W.$$XJ[.ZpARr)hARr)hARr)hAUtwpW.$$XAaZ18I(fifb7fR^aAiFrQe_@+b#h}6B0dTrARr)hARr)hARr)hARr)hAUtz*MRs(LVPkY?Z+D$wVRmI=JTG%{MRs(LVPkY?Z+D#cARr)hARr)hARr)hARr)hARs)+bVYV[I%#fmbYX5_Wl2Oncx]YlX:!9SIWlB4Vq!5jEihv,VJ$RaG(L/?Gd40UV;LK3W-(D_HZx;mJTG%{MRs(LX;N0LVQyn)Nkl#hARr)hARr)hARr)hARr)hARs)+bVYV[I)KMgZay,FGB7PLG%YbTR4[3+G%-3dH7zhVIxsLiFLQK7c62(-Xk}6b3LqdLARr)hARr)hARr)hARr)-b96.@bUJfyW@^L9a%DkhWo}pnL1b?YWgt+!Z++@SXm4.JLqi{kFflhEC_7B2WN(wKDLgN8bVYV[I(+Jkba!ELWkF_UZgf5hARr)hARr)hARr)hARr)hARs)+bVYV[I%8.IZf9j:J{+2kb96.@bUI@bVQyz-WIhTYARr)hARr)hARr)hARs)1a%5(YY-v6UARr)hARr)hARr)hARr)-a%5(YY-u2JWM);WVRCb2RC#b@Jt9)Nb8mHWV]U.f3LqdLARr)hARr)hARr)hARr)-b96.@bUI.UbZKvHK67DqWn=?rb96.@bUI.UbZKvHJ[.ZpARr)hARr)hARr)hARr)hJacqKc62(vZgX@DZewLhL[T/Ja4u/SWI8uwF+#u^W.iWmFlJ#bGBY$aEn.LgW-T#cFgG/eVmV_tGB7,Zb96.@bUJBnb97.DV]WK1J[.ZpARr)hARr)hARr)hARr)hJacqKc62(-Xk}6bGB7eQEig1KGBH#!HaasiIx^dWFgH3dFg!1FbVYV[I)KMgZaxYiARr)hARr)hARr)hARr)hAUtz*MRs(Lb8lvJcVTj6L1$%dbUs03Z)=O2P-t(-Z+ypGa3DiNATls9Hy_iiX;Me1cXKH]FLQK7c62()Z*S9NVRB[bXJu{5J[.ZpARr)hARr)hARr)hARr)hJacqKc62(pXkl):Wn={tJTG%{MRs(LV]yP,XJuqQ3LqdLARr)hARr)hARr)hJTG!(W.$$XJ[.ZpARr)hARr)hARs)1a%5(YQ*O^J3LqdLARr)hARs)1cx]Y@O+%,vb98TVc_HmtARr)hARr)hJa{zzO-)vPWpZhDWn?NjZ+3rQWM);WVRCb2RC#b@Jt9)Nb8mHWV]U.f3LqdLARr)hARr)hAUtz*Qe_d3X;N0LVQyn)Nkl$*ZE!AWX:FMuGdMLfFgIi@I50FgEn^XhHZ3?2GBqtYV;2;iVqrC5G(wmuFLQKKWo9}QZgX@DZewLhL[P^2ARr)hARr)hARr)-b97Q:W.$eVV_8t1ZgfdRK6q[#E?WwBIyN_DV;w_nGA%V@IW^e3F+GzSVm2^0Eih)bF+7n]GB.r^GdwSIbW(wzI%IESb!{yCbV*:$3LqdLARr)hARr)hAUtz*Qe_d3Z+pm8X;MU]L}mntZDnqBNkl$*ZE!ARX:FM!IAmivVKXu/HDoz9EoLz@G%aE[F+YqQW==ZiGGsD0VKFm2FLQKKWo9}Wa%pF2ZeeUhZ*0[BWo}pyL[P^2ARr)hARr)hJTG]^a7_4+L{hYmc4cHna(K*u3LqdLARr)hARs)(Xm50Hb7+gHIzw-4Z+om/WMw]xJTGu*Z++@SXm4.jLvL)va!qe!Wj,cZARr)hARr)hJaA{lbZ;KLZ+V$9Z*0[BWo}pqZewM0bZ;HVJ[.ZpARr)hARr)hARs)*WM):-VP]%HARr)hARr)hARr)hARr)-a%5(YY-v7WWN%[,I%IESX:FNZXm50Hb7+gHIx%H2IWS{}IW0D3I4}[SF:b(bVl!klEo3){G-5SkFgIgjH#^$LWM);SX,8:dARr)hARr)hARr)hARs)*WM);SX,B_OZ)=OSWN%_;WIAwYZ++@SXm4.jG%ztRWHvQ1EjDI2HZ3tRWnnEiIWRdbVr4ivFfd}/Fl1smJTG!(W.$$XJ[.ZpARr)hARr)hARs)1a%5(YLSbh/3LqdLARr)hARs)1aA/FIZ+ypGa5[Y9V_8t1ZgfFzV]X!6Z+p?!3LqdLARr)hARs),X:Y_RPjYExZggREX;V;mF,4AHX:Y_RPjYExZggREX;V;m3LqdLARr)hARs),X:Y_RSW.zkZ*_mRX;V;mIW^mbFfcDMFfcGMJTG*/W?b8AQe_@+Y._.LZ+D#cARr)hARr)hAUt$wW?b8BQe_@+Y._.LZ+D$0HZU,SFfTDMFfcGYFLY@UW.$6=Wpi)Ab#!TOZaxYiARr)hARr)hJalPhW.#-3b8l;QbZKvHRc;i=J}BKnbZKU0I#OkGZ*_mRX;V;-ZfSHr3LqdLARr)hARs)tcxh%jLvL)va#L[(V]V-zH8nFeJTGN/X:XY?Z*_UJQ+dEpWj,cZARr)hARr)hJY^%kW.#%5cx7x?L{[hhZgXjGZay/IFg!11cxh%jP-%E(Y+/8TZDnqAX;V;m3LqdLARr)hARs)tcxh%jP-%E(Y+_EUZDnqAX;V;mGdDahWq4[3I#6kNWo%hQX;Db0b7@mGJ[.ZpARr)hJTG!(W.#S:b7OL8aCB+JZaxYiARs)1a%5(YQba}R3Op{)I)ThxZDn+{J[.ZpARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hAPOKLARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr1LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)LARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)hARr)h3LqdLARr)hARr)hARr)hARr)hARr)hARr)hAPPJ]cyM83Yh]pGWo}3WB6lJ]J^#vQ00000AY)^UO#lFTB;)[]g8%@e^^R4h:;PzAFaQARU.qF+m.eA5Z/1fdMgRa/8c9S!RCwC#^dc?2Rh9RTzt]SXb;dBZJ2!OGP1EF?1wm0!Q4!:36%)M(7-uknVpcF/z!4Y(sE8SJAUYx-O3pNyZo28+H^TPhYVY.=qw3syZg)?!j59vpd48_w?TwP0bMHB*cCEekTA%g#tR:tRd.h)nl?B}Oh*PKu8j^G@?=]r#oBE,Nih^UO3Pof+7#mvWY$!pcDv7aayE#e0C%8g?DfEML*JKLm.4]0Or!(svkFPkD)GBYfdU^AECn=XJ%Zo0)nDX4Yv=nLAKol5*S#ue[:U*E$npYFGQ_v$:s*C7QsMoM1OH=f4q*0n%l8lWp]:En4[=JH,un^B/44]cP5]i;/d2=voc@})??,4aI8c_rl1)v^gtXMQG.8LiKZ^.}Z]U)B7c=}?I1gzMN$3OT%=*:i1:/VsjBlNhGqIbBcL_]qYu?OWS0*zJ,YYfg+NTQHdwTLtu@o*-Y7eby_v:CD(v0rZwff0tEcp6[%?uebR5;px/A.IIV(=.BJS/)P)v4kr]G*iTfJw1#,@%T$f#K,n5tbc}#.q2yndeOCOxc%7YQ^S,GC?RyAgd!..wHAwB]AQDH??KGq1N8Sn5J1v}:5V%lBCu!*BftCwe;vqeDt*sl]4)ofhO74Dqmbc_t=Yc#i5(E,-vH41!{V-B]*tD5gT!(lhP(?Y;ve,2AS!sTH}{TV8bQ1w(f#o_@?:l:HPs4HZy!r]--EzfYWJ[Cv1Jpb(_-axc!!E15iqGI?(.#MqFg5G?5gziIWme5ghZ5^#L=#k:Nw*Ww09OF0YO{(ji.HW+g[E-80sVA9QE6*nDdGgV9VBNn^f];=d.D8.9;D1R-OAX=*u#4D9v3!Q9PQYU/@sz#5.o*3lxink?cH7.Nu?;k57FHhBnc7.C;!C:aZ.(gq1R{@K8ENeuCBnGHVW}A#6-AY?j7V,-NXok3Bg0@6!JS[.yUt-@/DmeTd:T_CWL(.eC?ZERs_z*cQ)^m5Y!%L_{B*YM%R^4_BxFK2H6yN0C(Ko;=?8N4Vj2r!uzsNlLTlLbD0?-XNBRVs-B%u:5I5N8QBa^YmdYnnb}BuTdh@BDJTV.+fJb!}y4iluZvlfVCbFb}*lX^NMZvf_d8bxGd%=Y1+I_L%9x[M{f#Si6(d1cu[W{Pep1ICd3REaBGbEXJSe3a-qLDg)ngq80e=8XeY!N*cb$]*4j*pAwjhVFM/.TA^eic?w)JNB(xBhuJ%Ua*LQ)1[6{9ST1:sk^U;CfWemoEK}Rxr?u2[j[5WVa?*ALfL9N9bgZhpg=brs5v4CK$#bEFvnZ=-v*PNWi#gqMg;O6vA!w{}cV,]s%K$v-CRG:W/=]l/;k,n}uV2r]0psf}IJGIZk-d-XTpvGX}MTOer8ImS?S==B$%77-GLhkMp39$7@!n$sBCS2;1)k%iPd00abAl9PlkY}H!_C:132BnGAHSwAqc(Z:/6wTbA@BBdbn4LrgTuKBB4D2I7)R)Bw!x=:/.HugqkDa(Sn)N11nqs5q,5M9Dm}t7ykk.r30:raP^NC#5$g!#S@Fy!m3{6}5,Dtb**7%)F.Vt9vbzdkx94y%twr,vu1Vq8JI#^fQQWXsXyfFyO4!mC$CdvNBc(9eJ3*NLlOw9p7e{CrxO=C+R=G]bR8iNB#RWwz;S(QiySnfWR,:9fQVsJLd47c/DCEFwt1c:EukWBx3#]:gLf5WCE_1CwPH])8}!O6dqcK!M9/xIp^#M.cU^0Dx.:j)=0d}Nf.lkDE7+4!A7(iiI-Vr1G]N(cJ)g03}))JT9Y9(k25HHl1]t{sb[I7t$x1ot?Ar,pCA6_#GQJc4V{933I7lpzgqsVha@ooc}oy_yoy,3I2mjeOf1b7LuraO;7]]?7D;RLYP#yb/*[$FDA64it??7@8]g3o[ZBW7}{/Oq^MT-jmiF@b72A*Y16KN$^TX-g^Gf/Vo(4[d}Cgb!$F1%gCN#t4TU#E.[Yd9zjHrY}L;kXf4pVb$A5td,OVl^jfed?vehD@QnpCnbo98GGm3-=zdm_Y:CkWWXww1=IR[MmO0hgA}Fw^m0v{mlsohysv!@^5(!^U@GK{oEvLUCxco_h6i85Q12G}kQEe*Ws;q0lY%ys%/c)P@-ro+vHc]ZaN)E}zLAxA8*rqNnlOI?$/VJ*DzUy0H49/HzU]*0##3e,YJ=9B}j$iWiGoQKSyPu5r,WR6}t*k9#tbE$IR58^PEMLx:%f7=oANb(/3,nZ@7Q9DXcK5#HFcgGzUg+,!#iV@e8Qz@d[SltAe)wC!m%r:XP3Fym.jNk1-a,KY.w6mUa2-#+]?L[g*?yG!-t8[*vtl)^O)!idjgg_+RSqthe0t60Re)9O0jQKJ%mR8@F/y+Ree$]Yy7_7+03$JQrwXxEtU#9Lkzk!tXc3YmtBlBM0_f*CjnHs$j2I$uZddEQ.G8kuH-V=Mvkg[9ifC%g@d@0[mvazB$WA,/*?08HU1,[_65,8F66x!MD1;c^Hb0HPhCqbv;(4_8L6rbdQN)9p0#cYh*HF#5tff#c/E5QFFSfCz,!:TOWw)R#CUZ)?ZXuc)^(qfa]Y%L5t?VDHI2Wn18Zk9g5%pp]%dKjp.1rxml6=g=8/)a58ivlT67SdG,2},0m@)Ln,kt@8Go^srS{n65ojTf)LJ?*eE8];Q72EAY*VcWvCCVMLZ#9NpBfQ[k]BE/506=Qjaku467^{0q[fhE_KvFlSFKJ$G5PV}D;fXX*c(]_4G^!*hvgPgvNOCXWfw{OUGScVp8N^H9Drl0dm5CanP.b]R:T*y[!HKV,@}6)DmMvw}Pp.)QkAM8K?n[b(r3?KNBU#_72u3oyH409I*VmB7!6M;Oln^{0Xy@?3f9qdg+t:rcp-WGH^kn9]n)cxbL:X_$?JWUD]Y7rZ[{?p1_J4Jwb4aV@2czb]UGYJHs*8_1g-eY0AGFqjwFJIg8uk.DISw?KJXD_*g9skM/i.Ra$sUR3(Qi@k0b@BX4bu9WS-+PL+7-Yq%8KBfL%pN4a6ZMI786WP5cKr1[M)d]kG:1]x0lm(=,^2$$KiEt5T=I{141Ln$k3@*(.8gj;62@DT:A^1Ut^XU%xIGo/[yBXVE*sVt-t+ZkG:M[^{wb]FQ_6Cr/3XJWSyH.#LX)fcZc79*.}XU(F?d2ELQG,^,GYZ(L[N[)F=wSw3]?0AK;0@?qwqAzmL2vPunq:%$I0]([St?8JIN(lX=onBhPW8:GIoDPT;8#lGBHcg0^!ABhIkCh^bznf?UjGm5q[J[s2naQM,7vXop7P9L$.pz=v[9c@,Ffe_ivJVAAH_iX#,dBk+MNp1Z%%etPwf3M-bw$Y{m7nLeCyxT3jXBW3tZ-^i:N7C+.]QJNFtTe77WZcJ.9k2th$5lpGf#K/r$Be+2ptK4i{E,};XMFoct0Z5#MXql5Da?l96s.1gbPqo7%tK}1Zq38kCX8Wq5SJkAgf=!lo[1LLz;NW6cXEo^zwACOD3vVeK]yJbi5$93E@?!Ug?_s10wJ{ieSPCd5QCy;mh;jLv/zpZD$md(27G32V4U9r[;t@O2bO.B1[+_$rvUS.cXV!e}eAay98$X.6r$voAt{7e=Fsc{JgSP38n,M0O_N7T_G]eQp;kohby9jpMn=pYR39fm};q+8)2(^G9XM0H^JBbZ}6CF#9Llh)wdI:HNiDZQ!b!+hS^g}R9f*@za]+;fhq-le]-T?B#@ryfp#f1wPdw3.xp7G{2dU!:O-[u@Rh*+/gS^VdvNsZ9-DJf7ef[jI@4:*cyB2-o9KlFhQ^Gqbju6xeeZN/!VvQR,1$9exlCvw]96Z$^);e#gEc7HFKlPsy}2fXUu%^V=mj3Lm./]Z6}.:S!1D-an(;PbBWQ%kQF*Mb(Pm{%cBf?sR??sUp@//d{l!Td_grWbshM:!jX%A9#PAdTCMed1$xSJ2%/ktv7NF)%uI0]u:,04IhPiij^?b@gZhTy{NKxI,*P@gDOqeHNWQ^2.?;_1Hsi1tg6IkH6-$;x-?S3ql}x?6,mZ-K1m0sj(nKw%I(j^CB@+Z=bpR^@q.0A7JN(EPngDc/LLMP^fglc][B+L*1?wFLXLW5ySLmpLzfeix9QjnyM1D62dI+!V4HbwRVdPib1exih.!=mmKcf=SB_g/4fxcclrmvZMs}kKoIiynP.A}.k*0xVgPyqF^J7d1+0sO1q/pAt$gl7M/0Fs?}f@ry;I]0r,;c^K)UYdL-%smD-T]R]@dxBFMz#qX_{mVQ0K9+U=/pr@t$U$eeiXsz2bl$_M;30@Pf,B?e(?n;1GC@VD?aE9x7sSK6]RzYJIYd!ApL;Du^qlh#Xbhjwz(VfU,VBB7rnFVxOI_SymwVuAMr#6toq2YbZHS09uE^O}sr#6[J_Uk]%CBL3N-4N7w(w=eEvaMU$n%KZS9@sPmKt]tw4Ohw1/mH}mQ-KKG+!gs?N58WQ!^LEUv(Cnk#mjS59onyXfww)jD8nZL*WC%(L)=mYT.U%[CtmwIi25UYZ@EH{@0MN_n0B@86s1CXQ.WKKLw01Jg$t*DKZo9z_wn4,?+trTYMz6as[]6QdR)5[8#;uX.BVFRxy8@Lvj)xRF/z.flLI4FK]wAI=wDiov=,P,_P;v]7e5n/Q/;,F?#7z+C,vGQH-eP8w9!?hFjuYWr2XQBww@fkosY5!Bv!5sd0;8A1VcT1XH9H^zW3jEs,AXFxzaB@dL.KX[3qmPZ1E3.Fpm8jiHBc,)w?Fo4t/m@aY:/+a*P?D+%Ds#7Nym.NLp38kPsQXr%jo/$f6{6:0GV$6cKG:uu9!c(mfIuNqWe8{%l}JW}jZp%LlQ#rud}C5{cnFCI1FF/7]_fX@e9m)g@}_3KeSK]X/eRMh)T_7+W,S6RFBpUu1:5KmvoJpfCg6]!E/J1.(3!FAuiv^I:MxsGk[7UT2haP(US]ok3hgEZz}eEh%LC0EX*4p3AO)ylkX1lC24K*ET;)Ooz:#D(QT3]K4zQWORIF/5n5QFN6}U-7I5zsWb]XY{cUy6WCXTSTXUYMt^;VA_KJ)r0^%UrPX^CPJIV,Gz2DY?.Z,P;A(pXyG_Mjol7/f-0)6e,A%nN9*eFk@.U4Ir;rbh56;bnjjfkX[_G,i,Ilb;9-=$nbP%scUvWYHT;/Efi(CXUlI,h4xpc2JZ!-#rFFRIvzNnEsh0c2fs8Bq:8U-adn3G;d-HJVoo=SO%ftHE4N9,{lSWrZ:dK[ZzQMkv?4(4IU=g%d.5C55%G;OW^46]v$IbJ:I)6nl%hAUyf?ukXnQG#vvX!]IPTk+e5cEgv@+a-@1A.aV]y:(z];sqzXlWf@yuguRr5]Zt1RHG3@$yF(Jxc#@6ovh]WHUMi[/ls7R2+MlSG}@AiE?:T(REShhnZp(1DE$f8/iXwxSC^Mt9+ohKO@ozq[P@k,,Co6JnDdiI)qmw$EW(wlo+jaU4L*mQ$AiL{KD=_)llUVX_R_9IRB_KMtqFAVbp,*vfRl?icg[w,_ceEgN{=-JK*h^$Kn^_;VG_M.aD1otWN^@GzD%8?i1nW1g7x]BX8bolW]@F{p7F@o30jmIP^j4HKK?fPVHylk+Gd4rvpSn4}#G7yVkou^yM/U]G!cK)/Nl,uC/B@wY6h0;PjgF(m6otpWHZd7Sllgv8joa5qq?4IFEkAEbxmSEB1%VzDq@rZInfB01=#{gzE:ZoqWK6vKa-Vx88@;x#1QZ1G!?3J!qP[0KF4dWQsjUI(o6D#)3PqWduxUqgc@N(1:]A0wZ]0,1*:^lq76k26RhWC8r@PfMd2EXo$BIYb!f.VD^6ZJ2fv61-);s4?8f(kIiNE).410NVcO+E9@Hj4OAypW*[5rmVeSX]?;pWM@/mPqCpIw6Z^W@Ag^Mmu_G%jv#a]9]?=ynW;7KWFXuIPu7c9s2AAznq.NZ(;xj+#WY[!gvaM4k*COq0YhB:o_iW,zWp@+,1v%GLFGn6=[m-7#%%x4lGLryeQ6rgX;%6;UGwo$Mv+ZFH/atp/mO%$4-0W1rMzF/a[(yC6?2DoU{HXq#HM+Q_;#Xr8vM!2W!v36d*B/!B^CT-BkmZ60Lp.P+RgeeSYe]y}B7fDt/Z{FsKeS)BabVyKU+6HNg0q4Y,1(mQkJ4jT;44XN-3$.}-lSO..!=6$Gb^AVetr/6}c^6@lm^:gei?[kPIeFMfv;iny(=[LR{lH(,o7JVE{?#:[v_X^maiI@Eoe=82{%^/,zSJ6;]O$LG$.KeP4_O[8sKrBWLA[tCV5NMwG][@1^96y(2o6u0liWfUP5Xy@aVqcCp-uN^iU*FA-vz{Q,Lz+s?XM.Q6zA92/oX=$EUk9s:m==e$+)x}v1tM/OCZ}j},:FZJv28CJs=Zezd596;Oeg8#wop?3,P+;Fab4)tQXHb,GNP8.FfK@le!rEOGmi;/{.Ae.9tU[/@p,P8qM5W7ayI@NkLu3de,V+LqZYT9rHODMeiBgADqo/pFgU6O8C*bK/mICKsc%V=4n0V#p%@N.uy)e-BZ4]BW-e9^mr#rM3RocM%ofm*TMdyF@mg1$}.,_],L4bol[,A#i;z%)_]I@[hdF.xcey?t,$kOJL!mL8?meuONZiA4DI%w6v;,H{c(*fFK$F05PkYD{$.$p4NFAh4Gd50X#)hEL!^Y^sC/Gll8V.6Q)=,92N6fRmf)D!RnN29NY%7XbCuUYq?R(9a@2vtZz3+zn^Ot]QUttHknQmwpD)*fO;DdIt$XQ*]B;@uckd^-K46e2MUm(?/iRE,K^ByCgj7.D0l]@U%52}ZM}rOK79TRs%5+!_=uzudywYp$UPhb*2RlAmmKh2pDTecrrfOFzBo${5vuC%+jn#y7ulU6iDx0-=eJ!*I,VxVjLh1Z$qbi4ereSw8nJ(Vk*]pR4w];US?H?Ez{F(9(EkWzoU}7gjfHJPQ#DK)!U0Humr%?1;]QeU3k#cw+wdM^2hp7$Ze1;PkUq23oBzM})VXh,tKz[f.Ppi:sF64NYzi5Yq?ESvPOami{6ec=byx$zc[MG[WfhHhf7-ohOXM,pHjzT5Bq]]mnUyjRkw_PTxR36AwR+q-kOlr.1gRWw5ot^ANp}:RFn2SfN#*Y%SS!?w^CYpOW5m)@tg%sn063.$?BT5o4[NuH9y2._5$^sV3;0]hYm2LeNsBe9*oaf9c)Kyy:eDzMjW@]eVZCyiIn,9xs-y!+]f1n-1,1emqLqn%;Zx]8JVtCU(H%gi4]16!U/Hp{+{np)(Ev[JkVTG#fxs*g1v/###-c0w)YTNgG:!.Ddm$A.+{wy(bq@vaH}ycx.S6zwR]ooe%^j0(8gAekZG2P0_gU:/Of..l$YRTdWCcv9PKg1S:EeiAZ=J[4I7m5_xLUiPt})^{y7506vb74yv^Kut%H]4P:]i$sVMpeR$[lYK/_fg)79iQvn.2Oia+%XG_DAT#n/tx?x^zMW]J(gAE)Aa$,H%9SFu^?K,YIOglj%mY?}=:BB.(hIWfesfh8*,H0:m;A(7a@62B(mk}v@lWgJ/3aJlgjW-dLDnf*%P@_:RW.w9^j5}Ax*o+,Y#X/osRT:x@A9(!!FTzCTA_qTVn),}vhG$xV,$3:e.,S}jCd$1%YSWZJl}4t;O3Ngal62jS*XXbMV77;jh=+)ll^AMG7T0S.sx(i74ysw?ECH$w[uXRP,oNHCNfg.;!R;^f!f/unrVH=SR1vqAg:=O^N]NU;Dfn}]ZME=EfinU)%_G@-k1aXo7-V;eT]#*m]kQ_E^Wk?p/5zU5i3QQYLGLm=S0TWrzECkNKn0vq16{x^/KI?/c@76KegsclbroaQzqbHqRaEnIp1EPEvg;56?zm1}JjA?679}j--q%!!j8M,N[S-]@s$(yr8sFfozt07NO?u?YjfruVu3Ce@lVY9buz};*JK}Dvbv_k0GLjo(3?+n)gUpB-dgx*_,9ZW=c]A$PKmcv+,P3mcuVy6ZMX!1F,Jn#k,:YJ)!vo9sH,FGDXZz4Db.dkprAR3#/E$YXAAg:E=JV6=B@7CJ85=]gs;^Dmd+cSI4d];8fg}js^eXv=BoEmXL7Yb#wS6SC;uk}?ikpNYu0!AH#D9ts/4YY^3P2%sU4[X!gV]odaR[0neP?p!#i-)aO3ORE6GZ+2a0g]w0lahd*GO.Af1D@@t40cUee)*T5?Y-NkimKHi:AE*Ms]iJ-5iNcfO?6ZrBEo41}chr#/_@m5M.uD_Exm[0)]B88yO+)KR:?-dH.9xfP!}!x1g.qEaJsHo0}*^qh5L)GKqI:Znan)1ngowHfiC!$5.d6ZwJ_^lVj@tX+%eg48)Zny#@)E3nhG-8f{dl!Q+ur2k_19M)kUg9;+3,MAd$)jWNcr]W.D58j8evP{_]yXQ[s1@.nzXk0zoa22]cwk^J({a-zjExBrC?:nVp%c:!:][z{u_ea?9CFLgn:WHfz5C4OS8SaseQTvUQE%tE6*VsjSSQN9[y;4g;?bjc]48uzt;V55W*/,Mp]Eq!s!V5;zlrwn9VKgkO+p3paz=lRVRG%Od/s6g-V2()RziOA:zViZL?/+^bV6a[!W8q^go/(mcos9:83^My%e@oKtrZq#{B*u$rO[Ae2,995H3bqdYeWa!ZZATT/w46^w1iWh^n!(h9sF{}+;)t3m4[d5iMLNqO0HoA4wL9Q5G/DFYmFH{ZaL5WQhO$Hhb0uiit%u0pOSUftQU8baM=NR4x7)*S%4:e-q29.Kep^RtY4^ho=pg-UXu^x{:8Q.$/B8t(0jWfp59vP,e*Ki27gVA)}*0Wptutur^@}9PIL:ltMT+ICBK7cPo-./[$qvTkt7Zua:rPM-?B:okL8Lh_ZA{1MsDL[HY:E;Dhj@B31o2US?dU{xh1S1op2)q:B,khfDuSZEV+^$YU+M?0IInE1Z2DD4W/W-4-bSiZ;K.*+:/LrN!9L}_Ms7nFHZ0ZnI3Soo/84p![LzH,XFDX9,tu:j;S$+[bOVVhv.5mo0.FYi9uV1^FtxrA1.6OhvP9]J;=iI/Lf8eucU^q1)Fxxw+Ie*7@@0gYlk_h*lI+9r.+C2%g.Z8ecG(:n_h!l*Ll4MSh+fJ$QiJ3Z*w#$]gZwZ4XF,3CzFp-tz+bPvZW=VY2SS6K=3(;CK07%8p,T@XNgYRp%+ePjK[qrK$tqO}0Cfy#v7sCGj=7@oo(O3@s5M]BS/KsMR=8eVfZ)WK;6J(NTIxq^3,atQJ*;7_[ou5rm]T__HV){7Wc!YRjl3=eZ7:30P;G)K;-dWeiQGrt83A[=]M+?g/7y;XRi#i43JYLS_4;Or:4#lKO:u.eqBrITj%KT/MOEE;J9I5yWbF*}yu;_T[*J(Q1ikY0mBSjGJQ4=fmN@iXoNMeA^P*Xy1N}(P8LQ7Rm-97aL6Hh%s3*u9}gY:Yps*n^s0q!cZpHa6_#XP:5A]0Sd=glbGnz4No%_@KS#v2m?;}i!A;ECSy(*CA-wzist1,a}n*P_%6T)N]{A]oF9[LLFg;[nSsQ@tsxkQC2Eq+#}IKR)G:PcLy8QffE%:$(X!VWSQqHA*{]$/-4,j^pr2VyLZJjcK;AL6k+X,F_qO#VLU^p4bSLFraY%^cO1ZeyXL=D$V72CSz8UqG;D.d8OboE=gU1caj$nGHlO8rGlB(?jWiV8BiNwyzh{jwu^o+aU4)9Ch1R8Dk3.M-Gs@Pj{^k)Q[zU0Vw$ZP=/CvM/vNbiSzBn@0Fx$!l]7V];_k!x#(?J}?[;tz6PF%.9EV:.1.+EIrZ^)yzNNcT=XPmfx#uyo;T(uO=ve!%_3UxbgJ4i^F5rLK0gjGh[urodKl%}1U.T;VPk*-$J?+hTUykYN;EaXrHwA#,/E**!QZj7g+:_w/it1cR9VK.=C8IdB9JHO#c0$VuiPsK3Ji^3T;XIIxY7d@CG@VHBrjo;MMaOiT(oL.Pw$P-B#!Y/E!sBrUoG4yYvJ7}pQ7B=tVSz=aAa.th9Nvc$aajJh=t4jrYV2MVk4)/l/sbi%7yji_UV7tSIPz2H)E^R$5kjUN,6.b=2x0?gIudbUBu]0ZE{iCO.ZO[[mV!bW7APw8#3=Ofa?n8c*zMD6lmW}M8Gp[vN;f5ov7t)rEJS/}c!x/-)sqpZzGymJCk0U^g.;fGU]iFDY89t0:+WGuXj3Ir!h#5u-X4m5eZ$6;Mki]A(h?uTl?{IP=8cl_orEl(M{6Ho-1rzF5Tp,4Jw]niMbm]#$QT20N^^n-wR^KZivdC/uu8jVArPWC#@E51!Mo7Rpj].Y2AQlf42ZnaH)96JXwndi6GcbHa9)h!.xhW-jDROKkQgB}LW(Xw5!En4oQq}U79j}D.vmXYK2tExb}QxtYQ$=!Sn@8XJc09A:SjD+2ZP]YtvJXqLF+l(ekwxjR/;X+VnZYd5gX8vMC7svM@{,=X5f)7Q!^l$3l:c^/da!(@2rPwcG(mZxij5%Q)M+k.k*j,k_1K/.fIlojWhJ%-BcIO/CI?q!G5oMBSRZjF+;%DczohN/bXtV.BO^0TZ/nZ1*zHJ$=W^,KQr,D[v6OLi64J[Dr*/0b%Lt;M#E:!?SPK./c$],!FWT#8I}p*,d7Ft5,G4/#-y@%=;bei7/xjXFMuEjXqkZ21_Vjp0p[Vgfq)*5MFI+}GUcSjNdD*%$kL5edXWX:rGg#rt1^+jM%O(f+qX-{ZA@Ss0jrr0Q-L5(gTlzjujjw(mGmBd1Y!RmD=a]aUi^r{128/ap60_zhCg%,E)p.yq4DGsjE?bI778TB5=f1R0{@Yx7B!1N5,4)5OrkNdZ^ZPADUfQ2)-5x[UJPCo.^{H!HZg6J(@9TA5kXkQ1cfOIj}7tQ2/ZkxWQ$m16Pe/E3O-0lt.1P_4Llj*U1uat3K.L5x_Ei4*Pi856@8d@6h:#@phLr-SoFp;aKtZu#Xdj$0rO5jjmA?{sEuyLx7(1lvWp@Yy,-==M:)hn7kHdFyh#ytGfI{KSykJsg7c@tFoN,Os}+uz=K.K%*U15%u-LYvQfpF+,f/q^lg2Pn2nmBAcl;!2o+x9:YDkwKelDl/gg}Iu::LTGw5@SrK{eE2K)kG^IkkRbQ4]:zfJF#3!)W3gUg#7=CrW:azH6tk2Gv#!F2znU6^pVyQAg_]cAg{0Bu:T7iquL*Cdwt6#i%0cM0J_a+c{EKV]!%d1N-gALEri(hkX5CIp8Z[zNHPT6EfVkJI5.^G#-88*z=1%[:[i:Sx4WB-7rDO+y:Ty!1CftzQ[q+^tA1%:p[^9(Y^t2F/P6T*tJm2;W(/p;g?lLN9vN6nrf9fU.H9FU3VR(:RJ?1%9W%WHcZJS_C=}Ys;$?J]tNwj=BSx2c.!G/[Hs);9VQIvnKejd[H2SM,JOUA92$79c$bUz48$fYUWj)drKZ4Nm+s]xK$Ik}wDT)tEFR5SNi#gTEu.x^a+{eT%)Azg$,9:Uf%(g^=H]+*+7z/%Nd+=dbJqXUdoO8kSPQc%u:+JmpMEAUyyGt%dj9zg=sovSdW)szTbbOlndX,w1W8OXGE5pLnenUORd6ckHvA!x9Al8_GLl7osZqQEXTTdp#LPI*O[u.NX+U@dj=-+SYLo^Hny1X6bBOaKs]zc9VWW{{y[MX-O0GekR=suW7lh(QF-F#_VYu16Q1b##D$omu,b5oUYv(0Koc0/H^?u?5[P/W0Jy}aba*Qw/8.Q4UVQ$+Sh6b1OU8W=-,uD?@-ei{WoB]ayiVfRFI4P:$C@k*}*+9fI*MPxm0BEStR8OLw+gN75j3dk[FQf^oa{b1VPGi/2G4.sqYLqT[;*Xb*#!S-0xMaJ=zOxs,fZFUqsRdDwaSoe0jMwe/rV7_JZI$B};l_tREVhlxRLIhMv3Rj0#xhZg7%vqVFBh0BM6.dDK!2uwk9.XZV0h)2Fg!%-$tNi9xfgqW[{rJZJH?u^.*y@nLT%,k?4EijW4@iO:07uQ(.96Gw1_l^;!?$u%KmRYjT0]vl$ZYe$GqelU,3ueyo.WB3m9!TX;8oU4r/c/_J[hs.eZ2J@t/0N?3PAX7A;NE_NUsajs)GfhXX7d7i8t7XY.8BXvb{B#WDM-W4Wf)vSJ{7O;vb9)ZC;u*V+RyH5.SqFriwTr4{uLwh@3{^!HmoQ@ewlaZ@]nG*sYvW*1{15h(]#3nZSn-eivtf0TVM_2[x*:+P[d[$QvXiRsf;1PTJJ,wOYj-G=3V(5;)wfTcUb#0cd;4]BCm(+jK#f6pP8f0yN[oWhcmPG.dD2jfOZF.OY(;d{Sy$#yA8mZBRCvd9(SCF7cVaj1BFeo3CMsc2p=6jcY#DW#;0Iqb?xGUwQ%Ha7h9+^#,DVQG,^+ptP},bp8-7V#EQi[eQhew+k_0I!}A8dKhNS9Uw_4CcP;w4YDFT8}E!@a[k!?%;9zedwIyKp/%]]@Cp_:,A!2u^ZsReLr,I%T79lrOTIMYm?jO%:wv{%j^VHnJ-v{RGTQIC/#j1wXQC!V8kMhu,;5l)p:{/X=oBWLro0o9bP=N^R{Rv/{=GZo=c[AwA$=c4^zm(FMb_Pl4YtMKUG:Pk*GQ4,JT7=]kFPiRa^J0T[MqwR8ta72_SdXQ1B3SV=bR[)-^e4o9S/{?2N9lxGd8$U?RIK*Ecmv?G_t4(_9pAqC1dDYgZ=ZLR4VWgAeh^wKov.%@{?9%Ca-ge56(aoHpJe/#$6u0)}OHt5@TSZ700!wj1C6kI(t[?=qv5btHxUeuf]:g4%],l.,N1+ON{;:udr_m.L.w9R1nPGVhpUsc,o4okRJ16;a/8^AL#4a!ZyLkB-uQ/dOe,TC7=KGD)k2RnIz#bn.5BDg:eXQ}LnBx]cX1?NNu:5nA.,eIp{33fist9dO[0$[4-{mAA{UzTAs3R5ooQ-Mkr0fZ0YIubOuS,D2leUZzeuRmmGQuw4q@RR{9RjE.]+z),sM0YCgc*F.@G^qKL.ZQAtw.ctB7PnG/4Q:lqBef]FNSozWy=6c@C3tqeQgCBfGP/ZAk?P[$sKArh+K0SN.t)+A$vK2HM4GQJz3/s:i8v$mOUC^+bdG#;:_7wFN8C!PGS;=^;QB%u=PlxJ;TuMWg.NXL)9)drZYB(AGbl=btW;gffDY#fbMLL[n8#2f0H78YTRz1x^@U?VH2tu4Xs:KXVzi*pBfK}hLbKK=,pZjFh:jsuK@/TK*kL^tM+Y0]Qw:;Pt/QN0TJdc56p2rFxx#xCnIQR(nMiW}sPOXiqqJF0GAS.-8jQ5#[*p/ha?F-#,OfyHHkbT+b;OO/5[80K)Q7cBRR{-LOz1O0bD=[1XF$5Z5RPv{doeDk$h+KFaSj*UZfkwSW-.$-wfB7rebk0Zr!A}n^vDOx%!P(-!fj6V$xLR#W(mx@/SOkL+/]_yMop;yn]f1zrw[@]sUbXI!h%?Iu-NaII;@Q.UbCpph@@0?ZSFp{_Go^Dq$^H1%b0i317+VTF@1xTW#Lh2$39i,@x0*RO-5;pU^m+_k]SeeJ?Vi,ZJi8,SSEy!6o5LUf:C@Jxl{kTtY}J#(B]/r}[}5R*QeV4^[V@gBt*sZOL2;pxR:oY}EO@/:+!kAmw!PW#?5/dPm6-j7FHn8WYZy82JnFywEq3.7f/:q6MhyS=YH=uFsW?-?P93Rcy4eE?r7tcG;[JVh%f0Fz0:ovP(nqSA2WF3q-ccSId7ay*$]s_N/?).9Pt=7m6{Kt0V=q-W8jIOMcBHv5S7ux$zbxVn=7.bDx;FD8sET3TRlkSzPlNYZ/5{[buirT5oDV*^95%UpV/ZSg5i0PU@:F@].L4Z3=98!yZihk/k^H(nhoLPnyandWXZc(-Lesfi!K+Vb-TqYe-s7FeIgd{X2t]evisqNg]CpogUW5Lg4?nrBBG6vDcEPQ==*LWKuU]D}Udeo?1;)RyJQ1Xtx*_;jpPd@s+Kr5ew(1ylp}nWSy6!q!Pi18OWgq)RQ{+a%PN@$_KK}hD:-c1/$vw_M[MEt0gPwjE-UQ;r5Z4J0I-Dh@yo%U4Ox_iLyA0bl@b!#y:kkeI#3+VLFe#W6HR.Uf8z%$RX6x+Vci$.!@4$XIw=p-p6/zY{]R((1otrIYCoP.(y!EK?-84E/V8F2dk_5Z[dfmO!JFxtrk9[3FoA:!N,5(p]bh8hbNZh{T4vqPVp*q^wW/+z:On$1$=.-V=UFvXM+N#G7)JbW]F[:IQvwf;G4,O;%8cSpXtjRRT*0f,!UVp0SW3r_ZJz;P!yY6JoRllb,e+q^gd.SYJ@jqKf^hl8:[c.@rXe%RQPk)kED$f%rHJYz}.Im)N;iUyj@}E)e^h3,(=MtDz5A]0gmUv:/)T5)!H5#mV!ErlE82_3C.z0,o?Rz?2=xmMv7cL{z=6EHF:_4$@Nr_RTrS0:dA,UzQ$.q;%)YibEJW,7_kx0]g]^VYXdg^$D7TT;tyZgmySLJG]T;VvX=t/U.JEf/UU=%It#+pTnLbml_HmAaL_0AhpSK;2rFm@]cgihq?0q;QtTxDc?jFsnKkZsnjn[:?tmVf=(TNi*+;j#a%UFlRa1i:dQL0^vltG_8Eq0jw7YiJaf=,z{[cz/yM-m(}W?1zHCtp,B?47vO2CN)Gu5?1Yz+*WSzokN_@8e2M?N;4kL.9zv?lR;,@ss.D.dR8rjuSa;R5-K!,jg96/,QT*{gm=:o40SRu;$8YJa?XTT@D7I9x)@-aQ+0D6,-Pvy2R_?/:q,9L%grM1(N{.eys]8G@(4.g^5@+p]tA1E2n@1LG_gH?0n0w_)d@kZn::Yp,fk}#$9aeI9[L)E=KUCK1lc9QRN/_(xf7Wt:.YmZaHxv,iKs]s#}Vj#JkB{-pW(a^N%7M7]2(,/kCetoAFYg!KG6q%Ey0Vucln-Cnn1c[[xBW,t*Q{K3B?#;k@X9zVn-C)CX.%]dDIsH5lWytzyPPB$j%^ev+TL*wr(!q2B)%)EnZCqGO9(2gEZt;F#3*v$[YrJKohwCqOT!ghy)#6D/2{;yoDprJO9=[^rYG7,Jy[gF@m#*Md,%EQ@8:E3xjs,(/AdQ(1-MF]2!z#4y7W!OLv+#/cT%-Bw:FHrXAHy_Bt:.(Nzc5[uRv+kA9SN)/U@NqyMLpU=Xat#r/@[#uInUL8eVxHR};sNH?MDM5.upY%CUU,OqTfSCvCc+jJ@Z4wJ,/6p!0s$,@=Oa;iv9wONVH2brtOs:C[E1H;A_TEzxgNdMFo--GcXSh5=];#,W5mc0G#8}6Fm=,$I0tJkKQ[1-mkU$g=y/I{TOo@kr.$L[xe7B9(*VFJTj2$t:{?@],SM)W6eO+C*IsBXHej83H%9.X;+:{/a[Ag_e[dE/i[YwsMYeu*=M7xhKWjoSL0?3rrKU!48MH^G{RB],atCrF%vQtiBpGc$23n;PZm*11z2U/0Ms7#^o0uSv)oGtSxr4:_+9$x8UpI1qV/7egNg_LCJ/K6w1]:L1mb(p0Oa2GO4TFnI7GG?Q%0da7B)yQBT!JoqdnROj)Yilz:t)kZHiP6zfx,SL]a)-{q*i-ZQjVhFq=be6!]u7X/51N7O!DC%;WU57i6Ij@;YKlHFqobd1iTTXoJ0bX,bwb.PYeijTcgC.Ybyv-pS=Ofa7ty2fID4IJw$!mPwXk5,.rR@L_m)p{8ZRfi1pzJ.TvoJNX$T1]@AyzDdQIYj]-p:{eyPn;I[9N:.r9C;z#A7R2^K{Kl7yb3m?92N(31?78CtTiyqf@z-Qe#8KSSoP%%8UQ=FW0@DRqx.W.KR)=d#]C*+#D4M^Mcip;))KK!rxRKHlb?G;YvT}WsXM3!TXG7/#MhXxsri:5liZ6Nx(0?%GWl^p8dSyU[X.4rRHPUyeTinJMfO{;7wLa2Ro(M=2@!CSCpB2w]jS$Q9wZEtBfkuYL%qk.K9?0#N=f}!=NYDXcySBnRzF@oPBS*?ul@FS;J4H+6CBaiX-tIcb^_5i.lmf^;%ngxD)7;2y,$yu:jZvP%W29CTml/rF0p.;!:X(H:IgARS^zdf(gnQfwdT8XA}y7@9RZArJzvMER{m(%muq%@o[HRz2bWudg0edYLiIfuu391=(_W-mHfGMoJJ=_):KA0H3n-fl}Rd?SN]/BPQeckbMWQg.keI#mc1@%[zV4Ko[:br6A21b5o(kdeeT2We$NXj7GUlisFWcH,2g]5XHi-lcO.bCr,8v01R.=PD3{l%Scoiy28jX*%v6y@6igU3TZQ6{n/8JS8FOLF+smr:zS.:vg/GQH+v3MUp*f,cV0=y@dD+6@$JC+1rkZ3*+LqKiTvadHPn+UB0QDPhpx$atedif%GV^x-U=p=DD$}*I-.wN0wq-?6xb5;FtQR8VDHu:DctYb+;Av)=scNboRhL}jOd-Moe;v-*c/5g*#uN$,9C#qMx0ht*^q*VA!vP:t+yX#u.}gvPirv1sCC]JW[EvsChsH1un7sSmFa6:9ldgK_x?${Qd,nXs[Kuz4_1l{B8y^!rBOhVykw-Fd#T5jzXHR$G^!f8]M+iK^RWi/4#?V97vC/iOO9kp-G!%!=uZP3pSB426;30qrCnTjJ*eT$esW+s(0*fv]Ysu7_,tOLG-cVw4rz}iWt9YLuhSJs0aheEC;MiQCvpo$gJ+6[utFPfNS6^;YH?{IwC%lw{C!Pe(CVl)u(B6EI[x8u$[}u8q-1Mi/(heCx4mAMSI^eOuUiH6joBjUxe(4R(l6_;S328Mc[Vv/AhNseAZ*B;UpXu7_p.*ZR=!$^A?D58lz5OJ@+vRkCAh/BVd0iWNKat:IjbgDa+4#0w:6mC/[}s}Iu[r%rF3z/n@z}xvNuTBp)4aWuQP/gwoiwVGX#2dHBvV@EagGK315Et!kKDQY=kxV7ud=*/4_ne5XZNRi!saW!cl8_gBx2{QW%!bdf4gdr/;li1]N,fs,CK_jyM}?9!h4U(X*Ur^l,y],J=a!2g#=8V@?[I!qpr*zKs(Ja50#3i6},=}AvJ}wp:}YWHXugmaS0Wll6D{NF3e6bgkn)12,HIgU[[[usnud{ef#kzxbd)/)NdA/vBxRRK$mCk4IxvHWT#*:wMS*YM.J9TV?J*hq$#bFbRfHom@yt3CRmEud+lU_slGbfa9=M?3X*T+OsBFeq*E+DrMoh+[Gx{}*[d4%=^Bf@Ti)jzR}%2c[kJ^2J(hY4:E%;TN2C4mw=FWak6-*LWtV:r2,Ml$q,JY1Zwv!onQYcixcT+G,.^Bv!:vWD]1qmGhaTEdMC$*fIKPQ2u3,TzpC?[Z3BqN_GNs6WKK%vIz-,?vpRN+SE8s-1QMAFk/gabDhFr;%h(4oEt3a@Y(,5Nt,{P]y@}Pl6Qi?4{Xn=a88;jSd+n,[l%5+ht,ZL;y6fLoWvx3pgL/5(jIS83?d?_LYy7TL4PM^OX,7@,tsR9$$?Wl77.PLNW!Mqb+#xXzpDH2sE(z^ZxH}iaI+M8x1+K9oZqqh^5+,GsQ@)u[sb=YU!z3$c?+e.r,7??bnpQu!v:2a:%RE2ZbVsfxs@Op8LM$/SyNV?E0YOR%4fA1(LM)Z/Cv,0^6jLn%%2(7_@1U^j)cnP!{k6-Z{ieZHFo;bK9Hiw9yS(?Mb9Yvq?aCT]+Pq_8OxrfGvwcPZEH!{C4OL,eE+CV_;=Ek(XuUR:b:Y*_9zjSp@-s]cVT6,9FXML[!=fI{xGR_CR1A4,Rdqz65jn{kY32JQSG.(3cPh5sSc[m17M*c.ARJEvRu_(^p/Xz9RY?=HL@!e/7$#7@z^PY[Hs+Hu@PjOIur!ksFn7%?zd4tikSMzqM1=NvrdI#TL8yi#Ch@dw/6elNl1kz,?hsnAmb*2mR0hp{7C0@0gZ;Q2gv*_{6?aS(V,Oc}t5R(E?P:=#a*]EaDf:jXr;$XrvKvp4BFQ[-DORzx,,cQ9MaFW4@Nw%)hkk/SDnYCY-%YxUxjwSDW7bXZ9x$gny9B:?}T:K8Ko[p-E+WLe-b1(btcI}NiIvwD1gHC{.rXE;w@BdoA:h46T#nPRRIhKjXAKP_],J8@S+SzgEM!*z*;Q]Tl=e8brZ$I$/Z+[hEi3!!?T(V3Ui6PmTzLmx3ghnW?4oz?MEeKDUEJmjcm8(Oj=i,YrtEd0mv^e4NHB3fnlCk%5;qv=PDnp{Gnl.o_OiqC=(Sj@l;=nZtIdvnexCZJ8*e*#8?GhHGA:5Jka*U7SK(eMcGf,_:XR]nd+iw/6Y7hNEfk(;sil3bDa[Ub#1.qkpbckI)^E@3@Q%+gyk=YYUm!l0r(-{hwpJ(N#go}CCE=R:?w2U_=W-;4]N]%e--F+*#kh,A{#Uw5!PGi)3SaleZsf)$];RH4V4Uc{l({w.}M@Dx^f.7$6EG![#u.z2.XSh#q6%$P3elkT]7XpN!Gw7znkK0l7ph^p2*?R;0GQylnm1l0hjay!F!qm[1^gp3XGw]aD-(fC[ngRO7evsb(f+,iN(YDf!+H2/iCV_T%7B4!Zqc9;/ScL=cBM4Hk4g!}9onE]Sabg3fxF94c7BhWpZbJz_WWZX34:e.0wI:H{otH*fU[$*.8.yI@,u,GYrT@_$RQg]f/w#r-()VpABf?fps8}Qsl^^h2.F#]%Iy)s!Bmz?FOaX6%*Iw=nXLj6J+hrYFi4bho@j16lvb(TZWOF%!Tw89PQc4{A+ing7im4lysls%ZvPYG]3D!x56);qi:;uy}myPW#[x4l8GO;9JcYftx+s_@!g1LhPl][q)TN%CgUY5P]mCfUCx$!kSo%-rChG8VunF,lE3Rwr9UG6(ljNc8dej1rGciUU7^XHC=A0KDy+:Mu/B]:_I-E}AOR$vz[$T0f/3LdH2GLm/6?XQ2er;b%4xhGA;ZZZX8l!_)c(pJbdF2$w@CQX=kNdR0BP-w??Tf3G32z@ZG,Jvr6/l2CXbq7bR[z-+mK1965/PX-m3?6!k1h8h,xy],.*DJXMs=8):*y+]2(.!0uVD92wSa.]L^QN}PX7ZtjU?(]t2mk!1PZkb6=Cq@=Nf{UWOuRXA3C0K)B}XX47Ha_mH3S$!47O[u+[1w5LYTTT/2Rb*N1C-xH)eD:(6:6,Qt%F:ZaXl(IDaAQfAD=Q^[EH2iAoqRShZN}!V;dN%Nbvi;Aq5=@MrH0r$FM3O+P{tsSQYjARi527@wEM=$%ql_MWAMxbqGg53hv9i!W?4!KO}vnMl3uotQkV+lJR4G$@+3SPc,}$W_spal6UaqFGNv/3U]]q%,fNq,-R,5RhbxBi@AwL_QD81Oagr)W8#uI3]Y$Y0iM@HnmqMtL;8%;JAcPXcP-qr#U_B@Da73tMP]g7!gGwL6kL,vOC})h}}qCOpKT_M%uaL)]2fkd]8C/7gDm}%UHFz:la=G*Jlb^,H0o*psBG8xt%)nr_Zr$FwtaivdQ3hlipf.t4F-fJZniXc.hfO1;Ynn288^yW:2KXKp,Z0Uw=n5Lg[7(Sc6YfjIoS7?Bls43djHS%FA};:YvPobFzFljN!:$@6{*v%kMesthc(tF+nuG_8D0u^?w4g[Nb#6]_4K-:FcbGefLg;=EelWNFy+V(1U013(0A{=)w3VM7Z4.jzkIn1NCl:0-{+oV(]ZUqNzMGpEp-1$7%nzsbhu*hZ%ie0d/6V:MOI=lNxOk(14iFt?pJP4b)HLE;jG2,QKUf1Me3WQopd4q/0LiSg}pJ!H4,m;*+r=Z#kW=-Ue%FHYUFtihM}]s}E,rP+gv,,-NLu#.!4%wXZUHOQ0F8e7$bhwZjK[6/ZZ:ETowur;lD1]F-tF+7Lm_c%;l9WDsPSnhi)^Joc3?.oEIYPY-w^5kn,Wu^q}W0QDyE;S#GIsmt]!(L]46Oarv7k@n?.!^q4ms?_VrRV8RP7LNAJdS_KB[xL@EyPUP)yFA0of]I-*.ddnI,q6=zcIiGY//IyWcT_)5qgkyUJAGeyd-[ZROio];3rQHF;hLDOcpI3G3Z%12]NT5Rk%X4GSRoD!gOha%si*ps#l{h2NI-nP5.}*;:5yGl:wigm9Zv8?*pYPSX+8eToXFK5ahv_BP)X:iXnh2*sHDv*Kjbtbap0XNw3fm*;91tC:g!(0G+Fw5M$OYM=K(XBoPHxB8FoBlEeLi+vJ3KRev(%GIfB]P5JY(BqSlgh]X[dtg$U*HccN$UVp;B)Xc$o%wD[%CX@xH)rH(*d_J*PBjay(**D?TiM7k8j9h_clrS^ibE[)bk:Uuiq+U.w;$FThE)b!bGIe@w3cQA6n1sU0SaFD^j])_Y4_HiH]3KKz*ii,Q^JIhH4n_E;P,FkMl^}46I5?018%DKZgwuZ3LByf)A-hR9[Q;VHUL!fS6IT;5rX$3W9tX5F#o2^^798evchk8S!-X.dhkd(u_4]?DEM{.6Z5Q}L!iM{wPGTFFL8ts=%G{@nM6pHFd$H#uw7#lrxo^MQcct4Mv@/D(M0){sdqVO?2/Y3L]c.Ho%,W0JotTB1_XGJL32$5]NhN$MFF!N_L[lwRt;r9r.!}tka3A#Ab*3a;zN{,a5zZ0dTFneT#$x4{K6j7X/pfWLxmP)M,bDJ?QK7Q19B0CSMwQ,IoBKnRvk]1?qh*J55u.8Q;8+/f(Lx(a@zuFkV6p9q/jeV-@[*Q*N)v*VaaYiz4^*boWeiV)^Z-Zuob}[.@9xZp3G#p8gbd*A2Z4.4Z^b6t;!=^XbQBLX_sZT)(w#{uaO/%4AQ8Ab[d7]6NwmG)%x()]62bu{8:-F%5(R)FpY!{+3tRqbw0Rc#BW]/xCTM*#1OuK/IW,VxMd([ZhaK{^!X{YWN@l220d$BZ4K.YAk/1R@81ZYHjyQRKHRxm471JZVb6o{HK8A;jB;zwBp0%vU$TTnwg%qV1]*10fB+;I;3wv(1zhn_WBOCmyBv#_md?F8Y}4qj0#o=/;nAdIS%i?gxHFlqbHw9z:GKXJa8I(6oeU9ZckOTPZCXx6M,Ytts2dP.r$=E0!#Q/{4g,Wn8xv(@yh@;6y:,8[Vq9GA2XoI#P9b^?qox8C{Xz(E:N^+nJeI+J)[#7_5xdf_nPe*X$pk]V2,7Z}(3-VUo1U/Nk8lRkUTuMEn@h@j9EW15kYivcs+x[3uE(KgXumI1/n#dIaRlAV5De1]*)(CF6()o)tHzxUn?%$vj38+ZkScy?m6YYCSvWB978)(hvA,frA$p7)qUYk=sULp3U,g?}Y}Nla@Z.}nI@/g](ca]}yR/$zCpf{tP(m=zFZkNGcqDSa/_A*BtelJ?O*=9{NSrDPFS,SgZiIew]on}.^*ni:4ok#e(s(C:DM4bjv?Nh)=DoJxR7dq#Vu8L52UB3{rn!opObRBI44Q;auB-,}{SQ#XUCo,=j.)y2fylRi1K@?3x6y7wjDVBPM!)N2_eAvjjN%Nk!}on#t4/w{APd:y{8?MkwP0[w9lw9VS-ef#hC.iG;2a}=eUx$Jx6pBcI4I[@F3rAKMk/[nxY6B)Hz*CSgI@QhMvlMM+!f;We;aJw.;G?,a^rlK5$.iQ^3VoYL/0q@oE[qLQmM_s^^OzPP3)8CnVB=^]Ns)2p7s3%ggX07EiCX7hE^?ll72T#e^*JN7g-_7m^mq{r4pa,d)yfu[-(9P$Ym$-aJO9SQwd,gD7[(H}fufOy%w%mCK(prP/]d_7oR:)-Y)d0u9/dx=R9HK/!V58_NA;%F5x=)c@^fx+e?d_SW26sN?m{i:,pJMa/4;RY01K9f_FJZ(YH(K7,k-D20-%bUU2?et=/B7yjY{GJ9NPB$rkg!)()%dPeIg31[IA-.Q_I$u[.w4eBfKOA{tvXwOe:VgsgN*sF2d,@g7?R^]Dt[A}t(82Zg(,_kuf*%,eQ}z}/iFqm(EO#E:FO}s]O9hFa{U8zJ7Fr7%/:s[Izx+fX+y*.mBPFki0n2TCa+^/MVb!UF5[BljU7X,Hjyy_Mz*d9LF7C:VTdnA5LgI/sY^^(LK^r,fTwC:nR79bJ?L3)ZsM?-T=VZt=YPaXBaUFt@UtSeuYF(U:+(hM7D(^aaq+11m{Z:i#-5fjznvzg8a$RV;^Jp=DeSQai%(k8L[N^MMa:u;v+/tkh!:b3:4mcn%7=(?M(.]2a.ZeIRHjs{P$)2KDz{gmTyyR7lv4skHV#fUR=nTNGdS5]-dK%NJ0W43H0yPHNnb1hu@3^p#A0dKA};a_-k=z_F/j_ktX!SCMytKlqQb[o)+jBi6_cw3Ln{YM=usi(S{klNIixT(?lEYS8)BHK+}%$A*xIjl!M-O[Yg%0s/mUH{j)(Fh=z=GBPB8Z8o2lP,;sv}2l$Wf!ngX;bx,67}+aozN5X4{-(x#fK-8p8qVd]!mp({#+DTWk-6I,n3E/wg=++KqLYuN[(T]ln*5R@+HKWHDKY9VJC(+bf8jd@qEq}1WrC-AAe${]/m$@zlo#0kyOaav;JcpFmasS?[_Acg4GPSllV72U$ZYR@S]o[,=@#fzyWDLcRUP4pai0It/MXBvym?N,Mal+$jLQGs?(MG]A/JN42%6f4iBf=4z4efZCR%@n}5C[}QU,ijM9[Ol#y%U]JOf51Ua@;$nSokwYFT5gG[o.HY!A,Em%X7yj_5!yMk!RInelYs;Pu;7rW/[*7mJoh]7QXN;p$b/Lu[zgGExBq[ZeDW*a21/yyA-^v-Xoq)zje2VvspDq-8.cTBEaEn7AX(49aJSu%Qt9s%[2u$E#RkFVAW7Pl(ZOB,A+ADBj6h-{7(QhX)[T@*#=q9:#3Yq,50No6,[c1Mc2AYT;TKd2-GDLRb.Q-1bzEH04!2K*f,[/Wp83=ObI-ZC_F9!([2m,gPkG=^PxItA^]I87qmN%,$u}{S@:!!LP0d:H0H](Gsg!zY#qGNa(=rM0vg(a!u:S?u]T1;IHypU*b#J/[#_EtW+0**G/)0/[wBz6R)ur!b[.OQ^-nahgRY=ceNr8bdVz%_99ROGa)}VkXBSu{h-AK0Uk7#y]vx.Wjb)(VUn?-gd$#kBzahywMc9:3kJ:H(tLt^WG$6[gqz]gf.Y^R=X?rFKQ8v+QXyvIpa=FD71T;AQWUq6M3F(Ym*P6}_?oIejfW5i-m^LO#+?FUMXW@rQ8@;-ZiyysTnttHbLcBKr#)-Y[htJw*HK_sM}!:HR!3?8er;5^Qo5sD[r8mWp9dY$1EJz4Wo:_q%1-M[!)9(@T_s2WUy([abUNc{1g;+{jkU+YD:zR}vf.}T92jV/]81^InsPMmZ2Qjst$q24]1tC8VJosp=tj{EH6MYTaoL{[eTOWKTSz;oXk=Kc0G6%m=u-TB6A%EcrtSH3p4RM;RqTi-S-dGxUlx1N6b*uEV7d1A6:2?O=OA01yGZ]jO:SDnP^/Bp@C?XCi+UwqM65(ETzap50-^4KYheBz%bo2=*ATZ/[bso!%io36fUS?VH:uLwFBRA.Z_](1V0v@DCfB56vJf+-5lZMa$srN7c^JZG9Vmcc9$x=eoJ/#hzXj_UFe4@;Z8sZg*inS0[X9Ppv^vGI;LaLdbIc9w(wq4b*_O^XA%-rm,WJl;V@xAy9D4k.FAG{QQezH,,OBS9D@DUvm#-/B/wRT8CMv[angcKTH@({[x5O2+l{uSy^ZX=n#?PSO[?aq6Evbd3rVO[yF.g_nn9HC7CT#1+!D=t.H:Di.5x5Ek!;qA.?KwbR%-?(en%QB/-KkacjozVCe;-*reEAke/$cE/jCJF=SGt;no@KNN4-@tA#R:F}:+g[7QI@Sw^}@^%f5LG.LgaWA%GW3RG#p)WFNdYZuO+S,=fB{X5P4iAC%n1wsjy85;a_K?iD1=?]d^kC_9Ni,L+UA{6(3ifn2(I}wA(GyeA6Xq,2eC-nKirrw#+6F?@0(c.A+5*r:[]2a:^qi@c[@DaNC0J@[()rg4Dx08efZMke%-7iR3{IhC^m)x)OGmx]O8rkaeK[+2Y;bd9m{c_!Rd^]:tB[(6G7QXl%Uj.L-#]2#W@@3wslvzz54]P6,M_.M*gF9cphas(aVYQD)xHK51=o(LIMu/WGf+f$gCnmi#Jg?#y5j)LH3%aQJor$^$c@Rx0U}4Sh*jB:XG(e.J2OPUI!7om2_AV-b7jG}Q#.k+$fpsLqyMW{DEy$,YO;[zuf,ED.Tnyb$A0^yM/R63Kx8UvD;U0?mYVG_34=g),Uue*r-;xe)PC#*4oiFPb#d:uhu7oPtJweS[ftIdFo4P7,y3(wk-P4;v?e59a@9k6!;?n$1A%h}OQmnNR/GXt:jT0d_N7+[+%h#%k!cJ$_3eBbEk=fz@OS#d-D*(WASxnp;mxnzC!6.%;_]hd3R^2ns}:r:)uv7{m!0?=DHIWj30o}^Pd}-z^SUG7;/?n-X_.}9vb_6uk0NRJR/4.LOB1/ydbaid,+g)=8Nzz}hM:6#b}DCt(-[8Fx[P#beV^w(87R/-,icpjfl5z5w$+0dkw-GP(%U(4@:JKfQ;hXUZT-yTuYYk=CI4KLj{cUpMFzgr]sZS,mCM[+1?}R*O,h]w055p^;yP.Im(d2x^+;3!UbB^9:bfoN[V]5*yy$snSmzE5a]_4Gw=7J6jk7vBSrwZrC$i4O6F_LEzWBvgeD[X+.tWC5nj8MWkU{x;)]%H80j9A]1Tl6-RA@F1kc$C3#b1XQ$zyL-#V4ut,fc.SD_MGZ,cW3b:kIVu:l/-d-]?Sg/3Clq?!vjCQSz#1wy]81Hs3%:.f{q)_AV9U-*Sdw/3;tz:Q42cA);KSpue(1!Y=1T:6xTyt=ISfIb/?bNOq?Ig%+nLw*};}F8#)eB3)?;M{{c_ghG.FX:GYkmp-UniXr1(pYbjmsw0[0in/6o4ovE(TlcGE;Dx?bcqWImnpJp/*^ckP(@tOt!TX[ck!Mnoy?LGb0{(}7*D/qp,YpSwl]7x($:IpcC_851Qff3$Ns7fEG*5.F,.1P2fAr(-@5%#]Ui!#Czwgl:@,l6sD}4QRn7F8%/7.Vdp8+hi/!RWo_ItUCb=CRg1,6g^8o?tuA7.rC4!HQMm.LF8W8T=N4lIji(1;?tt5w{gTdjX[%[a%ZGnH9%rEhuhZUR26qr/UIPGW,9z2EVVR2MJCwOeRZyz%i+pZAC6#KenAm=/bC(B+MG^@oZ-,why.U0xboczIyMwLPV;UHju7EnV{=fBm=Fqoch2m+(*_4*MVQ8in:hvSq+Qw!@Y;TT-_!HRg![)WB8b=ei1#[dgjl%ca4;WU=J(zY^JeM$DMWMCm(WZli!kqsE5GNd{8Wj^D{n670JlZsWRVRUeorMEm,iR:#uaMH=@u+6+sS#jJRcbLxyBKFwx6NcUjp=7;H;i}{p-oW%ouKc(%z4I3ag?WR3cki[(o_7iC5^+RBk]=OPU=Lqf1iQu$?])(6%n#,;JI_4FH%IvY^7iYcVgtHkNgJuho1a?9b@OisJ#80lIP%PrYto4}QhM=VE5VTvF)?],!qSSTq-$-eOW#VEXqko8CoGbRU8e-Iwkdd}7MGKr-J2Rpb)6Lb-]_4MibIM8BIdfrRqFc(:%$d!emtOYC8xP!jrEj%9Ty%c[NYx{L2_?#1.{$QvY}Nq{.:F-F4$pvEE6^Gkcz$,[j/M5w-?mf9]sqEMyy*Vu($Ged#^0RF7id(WYuvjh=OuDHbL34oUM+s;mRL4Gi*9^o:ernB5}@V#YXO!GkJ=x.vI*gG!M3bjTgwMOr6Twsq%2dz)os:ydDFaXuE[K#0IS)7:v0[u7kX7/Y{J^N+e4y?*3QQWVGY(!(U+_;yH,Qmo*yLL+O.ujI.HA}.@ZW8z7$n@ns/KsJQlt5MU*OclI8#O-ZgQO=Dy}o(iPr7;i(HKv37_cg$}@%;+fu)IkWHG/-mhZ;_M4LMmA:4lq#ms1Di)ZJ@Z.G]TJ^,y7A;Ny_t+izs.qX,31F830%.nNk).wAvO%m,Hb#05B/uQziQHiq+fy,7Mc5.qmgn2)imH+Qr;sJ/Nx}Nmpo$B?6m{,%}aH?6yS6n-f)*;qDx4/(vo0:y@W=-j9rY4op+kFATk5v;Ip,ys^cIc^q6sg^a-GpeNVI9CQxg4GdWnht-}?XF)w*zpzv(!5]Z8eC1pdJvhq)ivHzZXV#X**]F{fbz{^gRE%v=SqJJ_zefzDy:(L^INs[_=axPg8x0-zPKqrOiU]0cv?[mDE]@SHJ#Y/lD:bpgAmMz(6vKAk:Nt:yqGd%h?gD-nobN@rd;VP$$^=upc[ucpU0xZpluGxEbsCmxX#/:QT=fHv7?%-OhePg*m(amdGyfc9XYgzftZ{AK.P%TfzXsI#usJkm^n.*b=qIi;)tD_Gpp1kP.[%x,BFhHTN50_Dn4)f--o=iWywB43Cut6azu332GVNcph1s{*TmOF^JZlU?3/5U.SpNWy:Sfq{QAl2TVO,?Br6LGS0:nBWQB]I5/^AIG0JiO},2QqNT.jnH!wBzhM/gNQNolz48]YG/b*B3G(VsUV:Xd08d1hrPNS(WP=m*1]Xk8YkfFhF7UTu543C8w[![sm*zz54gWK-yD:TryX5=iW#]@:s$7cLp/DEcuBbB2-Vi-DcM8Im{tHJWKOMFrxQQJoLyu$:HMsL)wov2qnXv5?YbjW4%{7t(B)EfzsF4+S30nvo:Y*zaL]*BaPadigCNo7/{MtFc{peua[cxv(q07yRqc):b%Y}4=^P3-8JWoZ]$yDDHP@JY3kY#wrh:f1i^neNy2R)]WVl?:6BGjv*B92exhgj9tS-5sZX9gbnm?q[G5O{PFqv$jMjuW2p*YVNq:z2d*^@a^vZ1!j10lpSia6S@WI*z=bFPC+@8TpUHQuc=taHxFD=!bzco=^mhP?HS#t-IAN)RPsu08YPA9,opAP!kMOXCfv/u_xhxd#/y?qCM1J,tpJxh+%G5U,2A9)9q-,EIpI)As7)}JeCr6n1,m23i@(-a@]nY40}N1ZWT.l2LAKm6znGcES=P+T04H8F8@=A!(]nE#315B2]?Nvm{ossx30BXxP8yDgd508X]$8X-^mca[dkD3CO2T;s?Sv.XT}hZG^xX6xCb)1_f?vBZMcoc6=^-?p9u$.t842UXspF5S}OKUm0z%y]ZEu3:.-wf2#rIKD#m-1oBMzVhWPikWP_]n7p*A}WMgU8^{VvYB{(pG4H)@RZiwd+R2zO7YMz[4?_u[aQ7U@u_0Hi^2AesyB}Kjtv#9#ij^t(9SzQ18mfpSi2@3dU30ZD:D/q_Dk2gAF;q9*2x)f%pQOw;rR_HN1/G%97Wl^9b-@+Vk]^56Q=Oj6k*..;vEZtZjVLSsPOO3LGVd{ajrAd/C#Vj^jd#]/0MP-YmHnqXm.E-C@uF(F[^tFMOxmNM[nG{l1C%bZo_Yl6r(mM6ZZBJPu6FmKZ??l!3vJNGjgXCZbS$R1.ixTls%#0jjVK=jo9JS$,S_U11z,H?KM^-gK:#bAH$U,d_31?Y5z;*HlY;N8RC3,*kLGkzOOlz^Xh9hv:t-8h]U}J]}^mfZMcBmUW$zt4rS7ac/+Qc8(/7=u?NX1VbeNxe(vabZ)Mi5(F@@E1v,:$e$r_l.nVav(c_)IgFBN#bU)tK?$eWyXY/!.U2WU7YbJq+t*nbB?)5VC.N4s6(CgYg^a]t1A0ti_Sxx5#njIvm$;zMYRPU]Ge8=}Rk3II1!#=:lQH.:h?:1aq$mmTX,0Z4EkMRU1AAXpnC!g4A@X/d]dioiksn#aXD5*,oT=(,{5M+X3iaLdYE[i_[wC29xxO3.7a]J]A[^4S@,]yR5v.88+^1x}Za9EBC^C{VMdcUd:h98ebe)Te$/wKy2W=vv3a8;g+-:Jc$X;aK09Q73cca/51fgqr@b]4Md;]Iou.f:6%=Y}3)u?J^38#iJzwaDdTVdZiatyFz]+Je9D)8oz35!/F%zBed@PbRT%*JKMxrJi^GdZI!p;-G06ZE)ceDdxCNPG+!DYwtwm(bqOrJ-vi?h,^%y2}^!9.aV,;uWTnJ3VV9.*;(poIBi?$EV;hvIY$sDkY*{L:a4kTr(-TCpBswxo/J4tw2AjF;j{6]@/16HSn(VB3Y#bd-s7gy$iJ.h*_s=sI(IOO=ZJ0CJu_a:@8fBa6-_/CBgyn2aYNUXw^9t2+QZ,bm=X*?3W#8wM/mU/famy{$w!/T*oceQ8PwC;x_Lwg95l%e2fWXppJK#JCAWp%-po#OELH$NJd*v-LG)ac.)=myTQ06q6$4;N5Vx}E*QRGstq[/$%jTv^n05.;W[]2Tdsd@{#3o6;nq.4+k%Rl(=T4JPBhCK7R:R1@*35x{7a2U[Xlf7LgXt,[qRPJ==V!Y*w?^rmK*c%Wv3lJ6bblDVF-p:itxI/@sm^$BO!z6Khb7a*XWeV0*wXtZ6K;i2^qH_--%oyGZ72?6qu{O-8vxiT];)$MFX4aqE3nIUzqh^Xu@*I7BpL,xP.9B==#HEDTh(5(qEfl9*?V$%8}S%QO]+uv?ftT=aXHIh]#MYz.Qxc28m#x)*U43f34#Zjst:@jlZvHa0_F5O=:nO7^y+gqfT]1JYD0LCG_id?c*xum[y4^A_L!%[aMiiY9^vWp#T50#yR540vjz:TvX0mP6/UUMX:k:YJ2B=(iO{3#Npi/.Edh^?kJH,.?jq[:Ir%-AoWy4LoWx:Hon}+)ceI?p!bY.).SZ8DKDca^m3Zf!+cf(9XwSfeQTxZ5;SmHQi.j6N)rPibcGXl6)APiv_7x4}^_x_+b0(D4R!vd;0000/MNUMnLSTY}00000*JT!f$A4OkIU]XAeuPa3AUW99rJ$A0pC1RJ?3G7CzA1BadL.9dB-)a)%l_Yjb_@U{nxfDp)V0ZiG46@ZGythk5efDK9W+OQ8CX4_0=)BUt@4mAc(v?TkiYBX!oZ#:wIMk8gcRVZ,CNm)w_$)H434X,J4TaRRPR!;4fL-</PublicKey>
+  </Signature>
+</CheatTable>
