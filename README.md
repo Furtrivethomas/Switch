@@ -1,3 +1,1 @@
-https://mind.essay.archtech.gr/math/hvtrs8%2F-cfn32%2Ctm%2Ft%3Fdh%3F8df531b61d172def%26ck%3Ff15%3Bcda%6002501d74%26wi%3Fcg05aaf40264dg1cb456dcb31%3Bb01fac%26vk%3Fd2f2629a6135e4c%606a9%3B8%3Beg2%3B8fcf17%26dn%3FDmnlig.Fapkm.0021%2Cmr4
-
-https://1024terabox.com/s/1rNW59u17vCa1pHkATVdUSQ
+https://www.mediafire.com/file/didf7grtn1zyaxv/17_slide.stl/file
